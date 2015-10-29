@@ -11,7 +11,7 @@ tp3: $(SOURCES)
 main.o: main.c bignum.h
 	$(CC) $(CFLAGS) -c main.c
 
-bignum.o: bignum.c bignum.h
+bignum.o: bignum.h bignum.c
 	$(CC) $(CFLAGS) -c bignum.c
 
 clean:
