@@ -28,7 +28,7 @@ int main(int argc,char *argv[])
     operation_t **operaciones=NULL; /* Creo un vector de punteros a operation_t*/
     char *num1;
     char *num2;
-    opt_t operation;
+    opt_t operation=NOOPERATION;
     status_t statusgetLine;
     calcMode_t calcmode;
     int precision;
