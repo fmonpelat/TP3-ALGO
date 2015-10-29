@@ -2,9 +2,7 @@
 //  bignum.h
 //  Tp3
 //
-//  Created by fmonpelat on 10/24/15.
-//  Copyright (c) 2015 ___FMONPELAT___. All rights reserved.
-//
+
 
 #ifndef __Tp3__bignum__
 #define __Tp3__bignum__
@@ -13,9 +11,9 @@
 
 typedef enum {OVERFLOW,OK} result_state_t;
 
-typedef enum{POSITIVE,NEGATIVE} sign_t;
+typedef enum {POSITIVE,NEGATIVE} sign_t;
 
-typedef enum{SUMA,RESTA,MULT,NOOPERATION} opt_t;
+typedef enum {SUMA,RESTA,MULT,NOOPERATION} opt_t;
 
 typedef struct bignum{
     unsigned short *digits;
