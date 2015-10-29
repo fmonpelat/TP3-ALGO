@@ -43,7 +43,7 @@ int main(int argc,char *argv[])
         return EXIT_FAILURE;
     }
     ValidateArguments(argc,argv,&precision,&calcmode);
-    
+
     if (calcmode==SUPERCALC) {
         
         while (statusgetLine!=eof) {
@@ -383,7 +383,7 @@ status_t GetLines( char **line1, char **line2,opt_t operation){
                 ptr=NULL; /* Si llegamos hasta aca es porque no se ingreso una operacion */
             }
         }
-        if (!ptr) return nooperation;
+        if (!ptr) return eof;
     }
     else return eof;
     
