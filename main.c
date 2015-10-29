@@ -28,10 +28,10 @@ int main(int argc,char *argv[])
     operation_t **operaciones=NULL; /* Creo un vector de punteros a operation_t*/
     char *num1;
     char *num2;
-    opt_t operation=NOOPERATION;
-    status_t statusgetLine;
-    calcMode_t calcmode;
-    int precision;
+    opt_t operation=NOOPERATION; /* para saber si existe una operacion valida */
+    status_t statusgetLine=ok;
+    calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
+    int precision=DEFAULT_PRECISION;
     int n=0,length = 0;
     
     
@@ -45,20 +45,21 @@ int main(int argc,char *argv[])
     ValidateArguments(argc,argv,precision,calcmode);
     
     if (calcmode==SUPERCALC) {
-        statusgetLine=GetLines( &num1, &num2, operation);
-        // hasta aca ya tenemos los 2 numeros y la operacion que tenemos que hacer....
         
-        // falta pasar los numeros a la estructura
-        // escribir las funciones que trabajaran sobre la estructura para hacer la suma resta y multiplicacion.
-        
+        while (statusgetLine!=eof) {
+            
+            statusgetLine=GetLines( &num1, &num2, operation);
+            // hasta aca ya tenemos los 2 numeros y la operacion que tenemos que hacer....
+            
+            // falta pasar los numeros a la estructura
+            // escribir las funciones que trabajaran sobre la estructura para hacer la suma resta y multiplicacion.
     
-        
+        }
         //impresion de resultados
         for(n=0;n<length;n++)   /*Flashie que quería imprimir algo desde el struct pero estaba re quemado ya.*/
             printf("%d",operaciones[0]->op1->digits[n]);
-        
-        
         //liberar memoria
+
 
     }
     else if( calcmode==SIMPLECALC){
