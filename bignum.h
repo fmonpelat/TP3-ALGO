@@ -15,7 +15,7 @@ typedef enum {OVERFLOW,OK} result_state_t;
 
 typedef enum{POSITIVE,NEGATIVE} sign_t;
 
-typedef enum{SUMA,RESTA,MULT} opt_t;
+typedef enum{SUMA,RESTA,MULT,NOOPERATION} opt_t;
 
 typedef struct bignum{
     unsigned short *digits;
