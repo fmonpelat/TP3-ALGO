@@ -18,7 +18,7 @@ void paso_linea_a_struct(char *linea,operation_t **operacion,int length);
 status_t GetLines(char **line1, char **line2,opt_t operation);
 char * searchEnter(char *str );
 char * prependChar(const char * str, char c);
-status_t ValidateArguments(int argc,char **argv,int precision,calcMode_t mode);
+status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode);
 /*#########################*/
 
 
@@ -42,13 +42,15 @@ int main(int argc,char *argv[])
         fprintf(stderr, "<precision> : precision del calculo antes de truncar Default: %d\n",DEFAULT_PRECISION);
         return EXIT_FAILURE;
     }
-    ValidateArguments(argc,argv,precision,calcmode);
+    ValidateArguments(argc,argv,&precision,&calcmode);
     
     if (calcmode==SUPERCALC) {
         
         while (statusgetLine!=eof) {
             
             statusgetLine=GetLines( &num1, &num2, operation);
+            printf("num1:%s num2:%s",num1,num2);
+            
             // hasta aca ya tenemos los 2 numeros y la operacion que tenemos que hacer....
             
             // falta pasar los numeros a la estructura
@@ -123,7 +125,7 @@ void paso_linea_a_struct(char *linea,operation_t **operacion,int length)
 
 
 
-status_t ValidateArguments(int argc,char **argv,int precision,calcMode_t mode){
+status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode){
     
     size_t i=0;
     
@@ -131,20 +133,20 @@ status_t ValidateArguments(int argc,char **argv,int precision,calcMode_t mode){
     for (i=1; i<argc; i++) {
         if ( !(strcmp(argv[i],INPUT_MODE_SIMPLECALC)) )
         {
-            mode=SIMPLECALC;
+            *mode=SIMPLECALC;
         }
         else if( !(strcmp(argv[i],INPUT_MODE_SUPERCALC)) )
         {
-            mode=SUPERCALC;
+            *mode=SUPERCALC;
         }
-        else mode=SIMPLECALC;
+        else *mode=SIMPLECALC;
         
         if (!(strcmp(argv[i],"-p")))
         {
-            precision=atoi(argv[i+1]);
-            if (!precision) precision=DEFAULT_PRECISION;
+            *precision=atoi(argv[i+1]);
+            if (!*precision) *precision=DEFAULT_PRECISION;
         }
-        else precision=DEFAULT_PRECISION;
+        else *precision=DEFAULT_PRECISION;
     }
     return ok;
     
