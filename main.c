@@ -15,7 +15,8 @@ typedef enum{ SIMPLECALC, SUPERCALC} calcMode_t;
 
 /*##### PROTOTIPOS #########*/
 void paso_linea_a_struct(char *linea,operation_t **operacion,int length);
-status_t GetLines(char **line1, char **line2,opt_t operation);
+char * GetLines( void );
+status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operation);
 char * searchEnter(char *str );
 char * prependChar(const char * str, char c);
 status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode);
@@ -26,30 +27,47 @@ status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode)
 int main(int argc,char *argv[])
 {
     operation_t **operaciones=NULL; /* Creo un vector de punteros a operation_t*/
-    char *num1;
-    char *num2;
+    size_t oper_size=0;
+    char *num1=NULL;
+    char *num2=NULL;
+    char *input=NULL;
+    status_t statusLine=ok;
     opt_t operation=NOOPERATION; /* para saber si existe una operacion valida */
-    status_t statusgetLine=ok;
     calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
     int precision=DEFAULT_PRECISION;
     int n=0,length = 0;
+
     
-    
-    if (argc<VALID_ARGUMENTS) {
+    if (argc<VALID_ARGUMENTS)
+    {
         fprintf(stderr, "Modo invalido de invocacion\n");
         fprintf(stderr, "Se debe de invocar como $%s <mode> -p <precision>\n",argv[0]);
         fprintf(stderr, "<mode> : modo de la calculadora %s o %s\n",INPUT_MODE_SIMPLECALC,INPUT_MODE_SUPERCALC);
         fprintf(stderr, "<precision> : precision del calculo antes de truncar Default: %d\n",DEFAULT_PRECISION);
         return EXIT_FAILURE;
     }
+    
     ValidateArguments(argc,argv,&precision,&calcmode);
 
-    if (calcmode==SUPERCALC) {
+    
+    if ( calcmode==SUPERCALC )
+    {
         
-        while (statusgetLine!=eof) {
+        inicializarStructOperation(operaciones,oper_size);
+        
+        while (statusLine!=eof)
+        {
+            /* Agrandamos el array de operaciones si no es la primera vez */
+            if (oper_size!=0) rezizeStructOperation(operaciones,oper_size);
             
-            statusgetLine=GetLines( &num1, &num2, operation);
-            printf("num1:%s num2:%s",num1,num2);
+            
+            
+            input=GetLines();
+            statusLine=parseLines(&input, &num1, &num2, operation);
+            
+            operaciones[0]->op1->sign=SUMA;
+            cargarStructNumeros(operaciones, oper_size, oper_size, num1, num2);
+            if(statusLine==ok) printf("num1:%s num2:%s\n",num1,num2);
             
             // hasta aca ya tenemos los 2 numeros y la operacion que tenemos que hacer....
             
@@ -61,10 +79,17 @@ int main(int argc,char *argv[])
         for(n=0;n<length;n++)   /*Flashie que quería imprimir algo desde el struct pero estaba re quemado ya.*/
             printf("%d",operaciones[0]->op1->digits[n]);
         //liberar memoria
+        free(input);
+        free(num1);
+        free(num2);
+        input=NULL;
+        num1=NULL;
+        num2=NULL;
 
 
     }
-    else if( calcmode==SIMPLECALC){
+    else if( calcmode==SIMPLECALC)
+    {
         
         // modo calculadora simple
         // pegar el main del tp2!!!
@@ -125,28 +150,33 @@ void paso_linea_a_struct(char *linea,operation_t **operacion,int length)
 
 
 
-status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode){
+status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode)
+{
     
     size_t i=0;
     
     
-    for (i=1; i<argc; i++) {
+    for (i=1; i<argc; i++)
+    {
         if ( !(strcmp(argv[i],INPUT_MODE_SIMPLECALC)) )
         {
             *mode=SIMPLECALC;
+            break;
         }
         else if( !(strcmp(argv[i],INPUT_MODE_SUPERCALC)) )
         {
             *mode=SUPERCALC;
+            break;
         }
-        else *mode=SIMPLECALC;
-        
+
+    }
+    for (i=1; i<argc; i++)
+    {
         if (!(strcmp(argv[i],"-p")))
         {
             *precision=atoi(argv[i+1]);
             if (!*precision) *precision=DEFAULT_PRECISION;
         }
-        else *precision=DEFAULT_PRECISION;
     }
     return ok;
     
@@ -156,47 +186,47 @@ status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode)
 
 
 
-status_t GetLines( char **line1, char **line2,opt_t operation){
+char * GetLines( void )
+{
     
 
     char lines[MAX_STR];
     char *totalLines=NULL;
     char *aux=NULL;
-    char *ptr;
-    char *ptr2;
     /* como pedimos memoria esta hardcodeado de a init chop chars por llamada */
     size_t used_size = 0;
     size_t alloc_size = 0, init_chop = MAX_STR, chop_size = MAX_STR*2;
     size_t counterMemoryCallouts=0;
-    size_t i; /*contador para parsear con strtok*/
-    
-    
-    
+
     
     /* pedimos memoria por primera vez antes de reallocar si es que necesitamos memoria.
      */
-    if (!(totalLines = (char*)malloc(sizeof(char)*init_chop))) {
+    if (!(totalLines = (char*)malloc(sizeof(char)*init_chop)))
+    {
         fprintf(stderr, "Error, could not find memory\n");
-        return nomem;
+        return NULL;
     }
     
     
     alloc_size = init_chop;
     
     
-    while ( !(searchEnter( lines )) ){
+    while ( !(searchEnter( lines )) )
+    {
         fgets(lines, MAX_STR, stdin);
         
         
         /* nos preguntamos si necesitamos memoria ... pedimos de a chops o de a pedazos
          */
-        if (used_size == alloc_size) {
+        if (used_size == alloc_size)
+        {
             
-            if (!(aux = (char*)realloc(totalLines, sizeof(char)*(alloc_size + chop_size)))) {
+            if (!(aux = (char*)realloc(totalLines, sizeof(char)*(alloc_size + chop_size))))
+            {
                 fprintf(stderr, "Error, could not find memory\n");
                 free(totalLines);
                 totalLines = NULL;
-                return nomem;
+                return NULL;
             }
             totalLines = aux;
             alloc_size += chop_size; /* incremento en suma o escalonada */
@@ -211,80 +241,88 @@ status_t GetLines( char **line1, char **line2,opt_t operation){
         used_size=used_size+MAX_STR;
         /* debug totallines printf("%s\n",totalLines); */
     }
-    
     /* quitamos el \n y hacemos null terminated string */
     totalLines[strlen(totalLines)-1]='\0';
-        
-        
     
-    if ( strcmp(totalLines,"#calculate") ) {
+    return totalLines;
+    
+}
+
+status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operation)
+{
+    
+    char *ptr;
+    char *ptr2;
+    size_t i; /*contador para parsear con strtok*/
+    
+    
+    if ( strcmp(*totalLines,"#calculate") )
+    {
         /* Aca calculo como separar las cadenas de caracteres en line1 y line2 */
         
-        while ( ptr!=NULL ) {
-            
-            if (totalLines[0]=='*') {
+        while ( ptr!=NULL )
+        {
+            if (*totalLines[0]=='*')
+            {
                 return invalidsintax;
             }
-            else if ( totalLines[0]=='+') {
+            else if ( *totalLines[0]=='+')
+            {
                 
                 // que pasa si no hay un - o un + en el medio?
-                for (i=1; i<strlen(totalLines); i++)
+                for (i=1; i<strlen(*totalLines); i++)
                 {
-                    if ( !(isdigit(totalLines[i])) )
+                    if ( !(isdigit((*totalLines)[i])) )
                     {
                         
-                        if (totalLines[i]=='-')
+                        if ((*totalLines)[i]=='-')
                         {
-                            ptr=strtok(totalLines,"-"); /* con esto nos saltemaos el primer caracter */
+                            ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
                             ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                             *line1=ptr;
                             *line2=prependChar(ptr2, '-');
                             operation=RESTA;
-                            free(totalLines);
                             return ok;
                         }
                         
-                        if (totalLines[i]=='+')
+                        if ((*totalLines)[i]=='+')
                         {
-                            ptr=strtok(totalLines,"+"); /* con esto nos saltemaos el primer caracter */
+                            ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
                             ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                             *(searchEnter(ptr2))='\0';
                             *line1=ptr;
                             *line2=prependChar(ptr2,'+');
                             operation=SUMA;
-                            free(totalLines);
                             return ok;
                         }
                     }
                 }
                 ptr=NULL; /* si llegamos hasta aca es porque no se ingreso una operacion */
             }
-            else if (totalLines[0]=='-' ) {
+            else if (*totalLines[0]=='-' ) {
                 
                 // que pasa si no hay un - o un + en el medio?
-                for (i=1; i<strlen(totalLines); i++)
+                for (i=1; i<strlen(*totalLines); i++)
                 {
-                    if ( !(isdigit(totalLines[i])) )
+                    if ( !(isdigit((*totalLines)[i])) )
                     {
                         
-                        if (totalLines[i]=='-')
+                        if ((*totalLines)[i]=='-')
                         {
-                            ptr=strtok(totalLines,"-"); /* con esto nos saltemaos el primer caracter */
+                            ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
                             ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                             *line1=prependChar(ptr, '-');
                             *line2=prependChar(ptr2, '-');
                             operation=RESTA;
-                            free(totalLines);
                             return ok;
                         }
                         
-                        if (totalLines[i]=='+')
+                        if ((*totalLines)[i]=='+')
                         {
-                            ptr=strtok(totalLines,"+"); /* con esto nos saltemaos el primer caracter */
+                            ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
                             ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                             *line1=ptr;
                             *line2=prependChar(ptr2,'+');
-                            free(totalLines);
                             operation=SUMA;
                             return ok;
                         }
@@ -294,85 +332,79 @@ status_t GetLines( char **line1, char **line2,opt_t operation){
             }
             else
             {
-                for (i=1; i<strlen(totalLines); i++)
+                for (i=1; i<strlen(*totalLines); i++)
                 {
-                    if ( !(isdigit(totalLines[i])) )
+                    if ( !(isdigit((*totalLines)[i])) )
                     {
-                        if (totalLines[i]=='-')
+                        if ((*totalLines)[i]=='-')
                         {
-                            if (totalLines[i+1]=='-')
+                            if ((*totalLines)[i+1]=='-')
                             {
                                 /* si llegamos hasta aca quiere decir que se ingreso algo como 001--222 */
-                                ptr=strtok(totalLines,"-"); /* con esto nos saltemaos el primer caracter */
+                                ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
                                 operation=SUMA;
-                                free(totalLines);
                                 return ok;
                             }
                             else
                             {
                                 /* si llegamos hasta aca quiere decir que se ingreso algo como 001-222 */
-                                ptr=strtok(totalLines,"-"); /* con esto nos saltemaos el primer caracter */
+                                ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
                                 operation=SUMA;
-                                free(totalLines);
                                 return ok;
 
                             }
                         }
                         
-                        if (totalLines[i]=='+')
+                        if ((*totalLines)[i]=='+')
                         {
-                            if (totalLines[i+1]=='-')
+                            if ((*totalLines)[i+1]=='-')
                             {
                                 /* si llegamos hasta aca quiere decir que se ingreso algo como 001+-222 */
-                                ptr=strtok(totalLines,"+"); /* con esto nos saltemaos el primer caracter */
+                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
-                                free(totalLines);
                                 operation=SUMA;
                                 return ok;
                             }
-                            else if(totalLines[i+1]=='+')
+                            else if((*totalLines)[i+1]=='+')
                             {
                                 /* si llegamos hasta aca quiere decir que se ingreso algo como 001++222 */
-                                ptr=strtok(totalLines,"+"); /* con esto nos saltemaos el primer caracter */
+                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
-                                free(totalLines);
                                 operation=SUMA;
                                 return ok;
 
                             }
                         }
                         
-                        if (totalLines[i]=='*')
+                        if ((*totalLines)[i]=='*')
                         {
-                            if (totalLines[i+1]=='-')
+                            if ((*totalLines)[i+1]=='-')
                             {
                                 /* si llegamos hasta aca quiere decir que se ingreso algo como 001+-222 */
-                                ptr=strtok(totalLines,"+"); /* con esto nos saltemaos el primer caracter */
+                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
-                                free(totalLines);
                                 operation=MULT;
                                 return ok;
                             }
-                            else if(totalLines[i+1]=='+')
+                            else if((*totalLines)[i+1]=='+')
                             {
                                 /* si llegamos hasta aca quiere decir que se ingreso algo como 001++222 */
-                                ptr=strtok(totalLines,"+"); /* con esto nos saltemaos el primer caracter */
+                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
-                                free(totalLines);
                                 operation=MULT;
                                 return ok;
                                 
@@ -408,4 +440,5 @@ char * prependChar(const char * str, char c)
     strcpy(string + 1, str);
     return string;
 }
+
 
