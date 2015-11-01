@@ -27,13 +27,9 @@
  } operation_t;
 */
 
-operation_status_t inicializarStructOperation(operation_t ** oper,size_t size){
+operation_status_t inicializarStructOperation(operation_t ** oper ){
     
-    if( !(oper=(operation_t **)malloc( sizeof(operation_t*) )) )
-    {
-        fprintf(stderr, "no memory \n");
-        return NOMEM;
-    }
+
     /* pido memoria para el array de operaciones */
     if( !(*oper=(operation_t *)malloc( sizeof(operation_t) )) )
     {
@@ -60,42 +56,42 @@ operation_status_t inicializarStructOperation(operation_t ** oper,size_t size){
     }
     
     
-    size=1;
     
     return OK;
 }
 
 
-operation_status_t rezizeStructOperation(operation_t **oper,size_t size){
+operation_status_t rezizeStructOperation(operation_t **oper,size_t *size){
     
-    (*oper)=(operation_t *)realloc((*oper),sizeof(*oper));
+
+    (*oper)=(operation_t *)realloc((*oper),sizeof(*oper)*1);
     
     /* pido memoria para cada bignum_t */
-    if( !(oper[size]->op1=(bignum_t *)malloc( sizeof(bignum_t) )) )
+    if( !(oper[*size]->op1=(bignum_t *)malloc( sizeof(bignum_t) )) )
     {
         fprintf(stderr, "no memory \n");
         return NOMEM;
     }
-    if( !(oper[size]->op2=(bignum_t *)malloc( sizeof(bignum_t) )) )
-    {
-        fprintf(stderr, "no memory \n");
-        return NOMEM;
-    }
-    
-    if( !(oper[size]->rst=(short *)malloc( sizeof(short) )) )
+    if( !(oper[*size]->op2=(bignum_t *)malloc( sizeof(bignum_t) )) )
     {
         fprintf(stderr, "no memory \n");
         return NOMEM;
     }
     
-    size++; /* aumentamos el array en 1 */
+    if( !(oper[*size]->rst=(short *)malloc( sizeof(short) )) )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    
+    (*size)++;
     
     return OK;
 }
 
 
 
-operation_status_t cargarStructNumeros(operation_t **oper,size_t size,size_t pos,char *num1,char *num2)
+operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2)
 {
     
     size_t size_num1=0;
@@ -106,26 +102,48 @@ operation_status_t cargarStructNumeros(operation_t **oper,size_t size,size_t pos
     size_num2=strlen(num2);
     
     /* corroboracion para no pasarnos del array */
-    if (pos>size) return ERROR;
+    if ( (*pos)>(*size) ) return ERROR;
     
     /* pido memoria para la cadena que contendra los digitos bignum_t*/
-    if( !( oper[pos]->op1->digits=(ushort *)malloc( sizeof(ushort)*size_num1) ) )
+    if( !( oper[*pos]->op1->digits=(ushort *)malloc( sizeof(ushort)*(size_num1-1)) ) )
     {
         fprintf(stderr, "no memory \n");
         return NOMEM;
     }
-    if( !(oper[pos]->op2->digits=(ushort *)malloc(sizeof(ushort)*size_num2)) )
+    if( !(oper[*pos]->op2->digits=(ushort *)malloc(sizeof(ushort)*(size_num2-1))) )
     {
         fprintf(stderr, "no memory \n");
         return NOMEM;
     }
     
-    for (i=0; i<size_num1; i++) {
-        oper[pos]->op1->digits[i]=(ushort)(num1[i] - '0');
+    if (num1[0]=='-') {
+        oper[*pos]->op1->sign=NEGATIVE;
     }
-    for (i=0; i<size_num2; i++) {
-        oper[pos]->op2->digits[i]=(ushort)(num2[i] - '0');
+    else if (num1[0]=='+') {
+        oper[*pos]->op1->sign=POSITIVE;
     }
+    else oper[*pos]->op1->sign=POSITIVE;
+
+    if (num2[0]=='-') {
+        oper[*pos]->op2->sign=NEGATIVE;
+    }
+    else if (num2[0]=='+') {
+        oper[*pos]->op2->sign=POSITIVE;
+    }
+    else oper[*pos]->op2->sign=POSITIVE;
+    
+    
+    /* Empezamos de 1 porque nos comemos el caracter de signo que se lo asignamos arriba */
+    for (i=1; i<size_num1; i++) {
+        oper[*pos]->op1->digits[i-1]=(ushort)(num1[i] - '0');
+    }
+    for (i=1; i<size_num2; i++) {
+        oper[*pos]->op2->digits[i-1]=(ushort)(num2[i] - '0');
+    }
+    
+    /* Agregamos q digits para saber hasta donde debemos iterar */
+    oper[*pos]->op1->q_digits=size_num1-1;
+    oper[*pos]->op2->q_digits=size_num2-1;
     
     return OK;
 

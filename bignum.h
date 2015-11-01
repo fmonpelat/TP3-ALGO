@@ -18,6 +18,7 @@ typedef unsigned short ushort;
 
 typedef struct bignum{
     unsigned short *digits;
+    size_t q_digits;
     sign_t sign ;
 } bignum_t;
 
@@ -30,9 +31,9 @@ typedef struct operation{
 
 
 
-operation_status_t inicializarStructOperation(operation_t ** oper,size_t size);
-operation_status_t rezizeStructOperation(operation_t **oper,size_t size);
-operation_status_t cargarStructNumeros(operation_t **oper,size_t size,size_t pos,char *num1,char *num2);
+operation_status_t inicializarStructOperation(operation_t ** oper);
+operation_status_t rezizeStructOperation(operation_t **oper,size_t *size);
+operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2);
 /*bignum_t* add_bignum( const bignum_t * , const bignum_t * ) ;
 bignum_t* substract_bignum( const bignum_t * , const bignum_t * ) ;
 bignum_t* multiply_bignum( const bignum_t * , const bignum_t * ) ;

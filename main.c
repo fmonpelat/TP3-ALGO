@@ -26,7 +26,7 @@ status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode)
 
 int main(int argc,char *argv[])
 {
-    operation_t **operaciones=NULL; /* Creo un vector de punteros a operation_t*/
+    operation_t *operaciones=NULL; /* Creo un vector de punteros a operation_t*/
     size_t oper_size=0;
     char *num1=NULL;
     char *num2=NULL;
@@ -36,6 +36,7 @@ int main(int argc,char *argv[])
     calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
     int precision=DEFAULT_PRECISION;
     int n=0,length = 0;
+    size_t i=0;
 
     
     if (argc<VALID_ARGUMENTS)
@@ -53,22 +54,24 @@ int main(int argc,char *argv[])
     if ( calcmode==SUPERCALC )
     {
         
-        inicializarStructOperation(operaciones,oper_size);
+        inicializarStructOperation(&operaciones);
         
         while (statusLine!=eof)
         {
             /* Agrandamos el array de operaciones si no es la primera vez */
-            if (oper_size!=0) rezizeStructOperation(operaciones,oper_size);
+            if (oper_size!=0) rezizeStructOperation(&operaciones,&oper_size);
             
             
             
             input=GetLines();
             statusLine=parseLines(&input, &num1, &num2, operation);
             
-            operaciones[0]->op1->sign=SUMA;
-            cargarStructNumeros(operaciones, oper_size, oper_size, num1, num2);
-            if(statusLine==ok) printf("num1:%s num2:%s\n",num1,num2);
-            
+        
+            cargarStructNumeros(&operaciones, &oper_size, &oper_size, num1, num2);
+            for (i=0; i<operaciones[oper_size].op1->q_digits; i++){
+                if(statusLine==ok) printf("num1:%d\n",operaciones[oper_size].op1->digits[i]);
+            }
+                
             // hasta aca ya tenemos los 2 numeros y la operacion que tenemos que hacer....
             
             // falta pasar los numeros a la estructura
@@ -77,7 +80,7 @@ int main(int argc,char *argv[])
         }
         //impresion de resultados
         for(n=0;n<length;n++)   /*Flashie que quería imprimir algo desde el struct pero estaba re quemado ya.*/
-            printf("%d",operaciones[0]->op1->digits[n]);
+            printf("%d",operaciones[0].op1->digits[n]);
         //liberar memoria
         free(input);
         free(num1);
@@ -260,8 +263,6 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
     {
         /* Aca calculo como separar las cadenas de caracteres en line1 y line2 */
         
-        while ( ptr!=NULL )
-        {
             if (*totalLines[0]=='*')
             {
                 return invalidsintax;
@@ -384,6 +385,16 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                                 return ok;
 
                             }
+                            else
+                            {
+                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001+222 */
+                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
+                                ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
+                                *line1=prependChar(ptr,'+');
+                                *line2=prependChar(ptr2,'+');
+                                operation=SUMA;
+                                return ok;
+                            }
                         }
                         
                         if ((*totalLines)[i]=='*')
@@ -414,7 +425,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                 }
                 ptr=NULL; /* Si llegamos hasta aca es porque no se ingreso una operacion */
             }
-        }
+
         if (!ptr) return eof;
     }
     else return eof;
