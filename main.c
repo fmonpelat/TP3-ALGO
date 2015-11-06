@@ -529,7 +529,7 @@ void resta (operation_t **oper, size_t *pos)
 short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
 {
 	size_t carry=0;short *resultado=NULL;size_t dif=cant1-cant2,i,carry;
-	if (!resultado = (short*)malloc(sizeof(short)*(cant1-1)))
+	if (!resultado = (short*)malloc(sizeof(short)*(cant1)))
     {
         fprintf(stderr, "Error, could not find memory\n");
         return NULL;
