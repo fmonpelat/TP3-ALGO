@@ -453,3 +453,97 @@ char * prependChar(const char * str, char c)
 }
 
 
+short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2)
+{
+	ushort *resultado=NULL, size_t carry=0,flag=0,dif=cant1-cant2,i=0;
+	if (!resultado = (short*)malloc(sizeof(short)*(cant1-1)))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+	for(i=cant1-1:i>=0;i--)
+	{
+		if((dig1[i]-carry)<dig2[i-dif])
+		{
+			resultado[i]=10+dig1[i]-carry-dig2[i];
+			if(!carry) carry++;
+		}
+		else if ((i-dif)<0)
+			resultado[i]=dig1[i]-carry;
+		else
+		{
+			resultado[i]=dig1[i]-dig2[i]-carry;
+			carry=0;
+		}
+	}
+	return resultado;
+}
+
+void resta (operation_t **oper, size_t *pos)
+{
+	size_t i,flag=0;	
+	if ((oper[*pos]->op1->q_digits)>(oper[*pos]->op2->q_digits))
+	oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits);
+	else if((oper[*pos]->op1->q_digits)<(oper[*pos]->op2->q_digits))
+	oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits);
+	else
+	{
+		for(i=0;i<(oper[*pos]->op1->q_digits)-1;i++)
+		{	
+			if((oper[*pos]->op1->digits[i])>(oper[*pos]->op2->digits[i])
+			{
+				flag=1;
+				break;
+			}
+		}
+		if (flag)
+		{
+			SIGNO POS
+			oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits);
+		}
+		else
+		{
+			for(i=0;i<(oper[*pos]->op1->q_digits)-1;i++)
+			{	
+				if((oper[*pos]->op1->digits[i])!=(oper[*pos]->op2->digits[i])
+				{
+					flag=1;
+					break;
+				}
+			}
+			if (flag)
+			{	
+				SIGNO NEG
+				oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits);
+			}
+			else 
+			{
+				oper[*pos]->rst=(short*)malloc(sizeof(short));
+				oper[*pos]->rst[0]=0;				/* Si llega acá el resultado es cero, corta."*/
+			}
+		}
+	
+}
+
+
+short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
+{
+	size_t carry=0;short *resultado=NULL;size_t dif=cant1-cant2,i,carry;
+	if (!resultado = (short*)malloc(sizeof(short)*(cant1-1)))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+	for(i=cant1-1;i>=0;i--)
+	{
+		resultado[i+1]=dig1[i]+dig2[i-dif]+carry;
+		if(resultado[i+1]>9)
+		{	
+			resultado[i+1]=resultado[i+1]-10;
+			carry++;
+		}
+	}
+	if(carry) resultado[0]=1;
+	else resultado[0]=0;
+}
+
