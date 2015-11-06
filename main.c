@@ -547,3 +547,51 @@ short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t ca
 	else resultado[0]=0;
 }
 
+short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
+{
+	ushort** res_matriz=NULL;size_t i,k,j,carry=0;short * res=NULL;
+	if (!res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2)))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+	for(k=0;k<cant2;k++)
+	{
+		if (!res_matriz[k] = (ushort*)malloc(sizeof(ushort)*(cant1+1+k)))
+    	{
+        	fprintf(stderr, "Error, could not find memory\n");
+        	return NULL;
+    	}
+	for(k=0;k<cant2;k++)
+	{
+		for(i=cant+1;i<=cant1+k;i++)
+		res_matriz[k][i]=0;
+	}
+	for(k=0;k<cant2;k++)
+	{
+		for(j=cant2-1;j>=0;j--)
+		{
+			carry=0;
+			for(i=cant1-1;i>=0;i--)
+			{
+				res_matriz[k][i+1]=(dig2[j]*dig1[i])+carry;
+				if (res_matriz[k][i+1]>9)
+				{
+					carry=findCarry(res_matriz[k][i+1]);
+					res_matriz[k][i+1]=res_matriz[k][i+1]-10*carry;
+				}
+			}
+			res_matriz[k][0]=carry;
+		}
+	}
+	if (!res = (ushort*)malloc(sizeof(ushort)*(cant1+cant2)))
+    	{
+        	fprintf(stderr, "Error, could not find memory\n");
+        	return NULL;
+    	}
+	res=suma_digito_a_digito(res_matriz[1],res_matriz[0])
+	for(k=2;k<cant2;k++)
+	res=suma_digito_a_digito(res_mat[k],res)
+	return res;
+}
+
