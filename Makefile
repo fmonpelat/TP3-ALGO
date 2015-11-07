@@ -6,7 +6,7 @@ EXECUTABLE=tp3
 all: $(EXECUTABLE)
 
 tp3: $(SOURCES)
-	$(CC) $(SOURCES) -lm -o $(EXECUTABLE)
+	$(CC) $(CFLAGS) $(SOURCES) -lm -o $(EXECUTABLE)
 
 main.o: main.c bignum.h
 	$(CC) $(CFLAGS) -c main.c
