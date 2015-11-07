@@ -455,13 +455,14 @@ char * prependChar(const char * str, char c)
 
 short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2)
 {
-	ushort *resultado=NULL, size_t carry=0,flag=0,dif=cant1-cant2,i=0;
-	if (!resultado = (short*)malloc(sizeof(short)*(cant1-1)))
+	short *resultado=NULL; size_t carry=0,dif,i=0;
+	dif=cant1-cant2;
+	if (!(resultado = (short*)malloc(sizeof(short)*(cant1-1))))
     {
         fprintf(stderr, "Error, could not find memory\n");
         return NULL;
     }
-	for(i=cant1-1:i>=0;i--)
+	for(i=cant1-1;i>=0;i--)
 	{
 		if((dig1[i]-carry)<dig2[i-dif])
 		{
@@ -490,7 +491,7 @@ void resta (operation_t **oper, size_t *pos)
 	{
 		for(i=0;i<(oper[*pos]->op1->q_digits)-1;i++)
 		{	
-			if((oper[*pos]->op1->digits[i])>(oper[*pos]->op2->digits[i])
+			if((oper[*pos]->op1->digits[i])>(oper[*pos]->op2->digits[i]))
 			{
 				flag=1;
 				break;
@@ -498,14 +499,14 @@ void resta (operation_t **oper, size_t *pos)
 		}
 		if (flag)
 		{
-			SIGNO POS
+			/*SIGNO POS*/
 			oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits);
 		}
 		else
 		{
 			for(i=0;i<(oper[*pos]->op1->q_digits)-1;i++)
 			{	
-				if((oper[*pos]->op1->digits[i])!=(oper[*pos]->op2->digits[i])
+				if( (oper[*pos]->op1->digits[i]) != (oper[*pos]->op2->digits[i]))
 				{
 					flag=1;
 					break;
@@ -513,7 +514,7 @@ void resta (operation_t **oper, size_t *pos)
 			}
 			if (flag)
 			{	
-				SIGNO NEG
+				/*SIGNO NEG*/
 				oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits);
 			}
 			else 
@@ -523,17 +524,17 @@ void resta (operation_t **oper, size_t *pos)
 			}
 		}
 	
+	}
+
 }
-
-
 short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
 {
-	size_t carry=0;short *resultado=NULL;size_t dif=cant1-cant2,i,carry;
-	if (!resultado = (short*)malloc(sizeof(short)*(cant1+1)))
-    {
-        fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }
+	size_t carry=0;short *resultado=NULL;size_t dif=cant1-cant2,i;
+	if (!(resultado = (short*)malloc(sizeof(short)*(cant1+1))))
+    	{
+        	fprintf(stderr, "Error, could not find memory\n");
+        	return NULL;
+    	}
 	for(i=cant1-1;i>=0;i--)
 	{
 		resultado[i+1]=dig1[i]+dig2[i-dif]+carry;
@@ -549,22 +550,23 @@ short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t ca
 
 short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
 {
-	ushort** res_matriz=NULL;size_t i,k,j,carry=0;short * res=NULL;
-	if (!res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2)))
-    {
-        fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }
-	for(k=0;k<cant2;k++)
-	{
-		if (!res_matriz[k] = (ushort*)malloc(sizeof(ushort)*(cant1+1+k)))
+	ushort** res_matriz=NULL;size_t i,k,j;ushort carry=0;short * res=NULL;
+	if (!(res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2))))
     	{
         	fprintf(stderr, "Error, could not find memory\n");
         	return NULL;
     	}
 	for(k=0;k<cant2;k++)
 	{
-		for(i=cant+1;i<=cant1+k;i++)
+		if (!( res_matriz[k] = (ushort*) malloc (  sizeof(ushort)*(cant1+1+k) )) )
+    		{
+        		fprintf(stderr, "Error, could not find memory\n");
+        		return NULL;
+    		}
+	}
+	for(k=0;k<cant2;k++)
+	{
+		for(i=cant1+1;i<=cant1+k;i++)
 		res_matriz[k][i]=0;
 	}
 	for(k=0;k<cant2;k++)
@@ -584,26 +586,24 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
 			res_matriz[k][0]=carry;
 		}
 	}
-	if (!res = (ushort*)malloc(sizeof(ushort)*(cant1+cant2)))
-    	{
-        	fprintf(stderr, "Error, could not find memory\n");
-        	return NULL;
-    	}
-	res=suma_digito_a_digito(res_matriz[1],res_matriz[0])
+	if (!  ( res = (short*) malloc (  sizeof(short)*(cant1+cant2) )   ))
+ 	{
+      		fprintf(stderr, "Error, could not find memory\n");
+       		return NULL;
+   	}
+	res=suma_digito_a_digito(res_matriz[1],res_matriz[0],cant1+2,cant1+1);
 	for(k=2;k<cant2;k++)
-	res=suma_digito_a_digito(res_mat[k],res)
-	return res;
+	res=suma_digito_a_digito(res_matriz[k],(ushort*)res,cant1+1+k,cant1+1+k);
+	return res;	
 }
 
 ushort findCarry (ushort num)
 {
-	size_t i;
+	ushort i;
 	for(i=0;i<10;i++)
 	{
 		if((10*(i+1))>num)
 		break;
 	}
 	return i;
-}
-	}
 }
