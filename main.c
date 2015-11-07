@@ -456,7 +456,7 @@ char * prependChar(const char * str, char c)
 
 short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2)
 {
-	short *resultado=NULL; size_t carry=0,dif,i=0;
+	short *resultado=NULL; size_t carry=0,dif;int i=0;
 	dif=cant1-cant2;
 	if (!(resultado = (short*)malloc(sizeof(short)*(cant1-1))))
     {
@@ -530,7 +530,7 @@ void resta (operation_t **oper, size_t *pos)
 }
 short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
 {
-	size_t carry=0;short *resultado=NULL;size_t dif=cant1-cant2,i;
+	size_t carry=0;short *resultado=NULL;size_t dif=cant1-cant2;int i;
 	if (!(resultado = (short*)malloc(sizeof(short)*(cant1+1))))
     	{
         	fprintf(stderr, "Error, could not find memory\n");
@@ -551,7 +551,7 @@ short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t ca
 
 short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
 {
-	ushort** res_matriz=NULL;size_t i,k,j;ushort carry=0;short * res=NULL;
+	ushort** res_matriz=NULL;int i,k,j;ushort carry=0;short * res=NULL;
 	if (!(res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2))))
     	{
         	fprintf(stderr, "Error, could not find memory\n");
