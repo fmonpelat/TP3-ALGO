@@ -20,6 +20,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
 char * searchEnter(char *str );
 char * prependChar(const char * str, char c);
 status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode);
+ushort findCarry (ushort num);
 /*#########################*/
 
 
