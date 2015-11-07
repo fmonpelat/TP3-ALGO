@@ -595,3 +595,15 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
 	return res;
 }
 
+ushort findCarry (ushort num)
+{
+	size_t i;
+	for(i=0;i<10;i++)
+	{
+		if((10*(i+1))>num)
+		break;
+	}
+	return i;
+}
+	}
+}
