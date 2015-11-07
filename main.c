@@ -20,7 +20,12 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
 char * searchEnter(char *str );
 char * prependChar(const char * str, char c);
 status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode);
+short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2);
+short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2);
+void resta (operation_t **oper, size_t *pos);
 ushort findCarry (ushort num);
+void test(operation_t **oper,opt_t operation);
+
 /*#########################*/
 
 
@@ -55,11 +60,13 @@ int main(int argc,char *argv[])
     if ( calcmode==SUPERCALC )
     {
         
+        test(&operaciones,RESTA);
+        /*
         inicializarStructOperation(&operaciones);
         
         while (statusLine!=eof)
         {
-            /* Agrandamos el array de operaciones si no es la primera vez */
+            /* Agrandamos el array de operaciones si no es la primera vez
             if (oper_size!=0) rezizeStructOperation(&operaciones,&oper_size);
             
             
@@ -80,8 +87,9 @@ int main(int argc,char *argv[])
     
         }
         //impresion de resultados
-        for(n=0;n<length;n++)   /*Flashie que quería imprimir algo desde el struct pero estaba re quemado ya.*/
-            printf("%d",operaciones[0].op1->digits[n]);
+
+         
+         
         //liberar memoria
         free(input);
         free(num1);
@@ -90,6 +98,7 @@ int main(int argc,char *argv[])
         num1=NULL;
         num2=NULL;
 
+         */
 
     }
     else if( calcmode==SIMPLECALC)
@@ -454,6 +463,28 @@ char * prependChar(const char * str, char c)
 }
 
 
+void test(operation_t **oper,opt_t operation){
+    
+    size_t size;
+    char num1[]="-010";
+    char num2[]="-020";
+    
+    size=strlen(num1);
+    inicializarStructOperation(oper);
+    cargarStructNumeros(oper, &size, &size, num1, num2);
+    
+    /*probar aca las funciones y luego imprimirlas*/
+    
+}
+
+
+
+
+
+/* a probar las funciones de abajo */
+
+
+
 short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2)
 {
 	short *resultado=NULL; size_t carry=0,dif;int i=0;
@@ -547,6 +578,7 @@ short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t ca
 	}
 	if(carry) resultado[0]=1;
 	else resultado[0]=0;
+    return resultado;
 }
 
 short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
@@ -608,3 +640,4 @@ ushort findCarry (ushort num)
 	}
 	return i;
 }
+
