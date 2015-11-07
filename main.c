@@ -465,18 +465,22 @@ char * prependChar(const char * str, char c)
 
 void test(operation_t **oper,opt_t operation){
     
-    size_t size;
-    char num1[]="-010";
-    char num2[]="-020";
+    size_t size;int i;
+    char num1[]="020";
+    char num2[]="010";
     
     size=strlen(num1);
     inicializarStructOperation(oper);
     cargarStructNumeros(oper, &size, &size, num1, num2);
+	
     
     /*probar aca las funciones y luego imprimirlas*/
-    
-}
+     oper[0]->rst=resta_digito_a_digito(oper[0]->op1->digits,oper[0]->op2->digits,size,size);
+	for(i=0;i<size;i++)
+	printf("%d",oper[0]->rst[i]);
 
+
+}
 
 
 
