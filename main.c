@@ -20,11 +20,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
 char * searchEnter(char *str );
 char * prependChar(const char * str, char c);
 status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode);
-short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2);
-short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2);
-void resta (operation_t **oper, size_t *pos);
-ushort findCarry (ushort num);
-void test(operation_t **oper,opt_t operation);
+void test(operation_t **oper,opt_t operation,size_t *size);
 
 /*#########################*/
 
@@ -39,6 +35,7 @@ int main(int argc,char *argv[])
     char *input=NULL;
     status_t statusLine=ok;
     opt_t operation=NOOPERATION; /* para saber si existe una operacion valida */
+    operation_status_t status_cargado=OK;
     calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
     int precision=DEFAULT_PRECISION;
     int n=0,length = 0;
@@ -60,7 +57,7 @@ int main(int argc,char *argv[])
     if ( calcmode==SUPERCALC )
     {
         
-        test(&operaciones,RESTA);
+        test(&operaciones,RESTA,&oper_size);
         /*
         inicializarStructOperation(&operaciones);
         
@@ -75,22 +72,26 @@ int main(int argc,char *argv[])
             statusLine=parseLines(&input, &num1, &num2, operation);
             
         
-            cargarStructNumeros(&operaciones, &oper_size, &oper_size, num1, num2);
-            for (i=0; i<operaciones[oper_size].op1->q_digits; i++){
-                if(statusLine==ok) printf("num1:%d\n",operaciones[oper_size].op1->digits[i]);
-            }
-                
-            // hasta aca ya tenemos los 2 numeros y la operacion que tenemos que hacer....
+            status_cargado=cargarStructNumeros(&operaciones, &oper_size, &oper_size, num1, num2);
             
+            if (status_cargado==OK){
+                
+                for (i=0; i<operaciones[oper_size].op1->q_digits; i++){
+                    if(statusLine==ok) printf("num1:%d\n",operaciones[oper_size].op1->digits[i]);
+                }
+                
+            }
+            // hasta aca ya tenemos los 2 numeros y la operacion que tenemos que hacer....
             // falta pasar los numeros a la estructura
             // escribir las funciones que trabajaran sobre la estructura para hacer la suma resta y multiplicacion.
     
         }
         //impresion de resultados
-
+         */
          
          
         //liberar memoria
+        free_operation_t(&operaciones, oper_size);
         free(input);
         free(num1);
         free(num2);
@@ -98,7 +99,7 @@ int main(int argc,char *argv[])
         num1=NULL;
         num2=NULL;
 
-         */
+         
 
     }
     else if( calcmode==SIMPLECALC)
@@ -122,45 +123,6 @@ int main(int argc,char *argv[])
 
 
 /* funciones */
-
-
-void paso_linea_a_struct(char *linea,operation_t **operacion,int length)
-{
-    char *ptr=NULL;
-    char aux[MAX_STR],num1[MAX_STR],num2[MAX_STR];
-    int i;
-    char calc;
-    
-    strcpy(aux,linea);
-    /*if(aux[0]=='-')
-     {
-     *operacion->op1->sign=NEGATIVE;    Esta parte es para chequear el signo del primer numero, y en consecuencia mover el puntero
-     para que si hay un signo menos, despues se empiece a leer desde el segundo caracter.
-     ptr=strtok(aux,"-");
-     }
-     else operacion->op1->sign=POSITIVE;
-     */
-    //(*operacion)->op=busco_opcion(aux,length);
-    if((*operacion)->op==SUMA) calc='+';    /* Calc es el simbolo de la operacion en sí*/
-    else if((*operacion)->op==RESTA) calc='-';
-    else if((*operacion)->op==MULT) calc='x';
-    ptr=strtok(linea,&calc);  /*guardo en ptr la cadena desde donde estaba antes, hasta que encuentra el simbolo de la operacion*/
-    strcpy(num1,ptr);
-    (*operacion)->op1=(bignum_t*)malloc(sizeof(bignum_t));
-    (*operacion)->op1->digits=(unsigned short*)malloc(sizeof(unsigned short)*(strlen(num1)+1)); /*Genero memoria, revisar*/
-    for(i=0;i<strlen(num1);i++)
-        (*operacion)->op1->digits[i]=atoi(&num1[i]); /*Voy guardando en digits cada numero en la cadena num1*/
-    
-    strcpy(num2,ptr);
-    (*operacion)->op2=(bignum_t*)malloc(sizeof(bignum_t));
-    (*operacion)->op2->digits=(unsigned short*)malloc(sizeof(unsigned short)*(strlen(num2)+1));
-    for(i=0;i<strlen(num2);i++)
-        (*operacion)->op2->digits[i]=atoi(&num2[i]);  /*Lo mismo para el segundo numero, faltaría hacer que verifique su signo*/
-}
-
-
-
-
 
 
 status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode)
@@ -438,7 +400,10 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
 
         if (!ptr) return eof;
     }
-    else return eof;
+    else{
+        operation=NOOPERATION;
+        return eof;
+    }
     
     return ok;
 }
@@ -463,185 +428,30 @@ char * prependChar(const char * str, char c)
 }
 
 
-void test(operation_t **oper,opt_t operation){
+void test(operation_t **oper,opt_t operation,size_t *size){
     
-    size_t size;int i;
+    int i;
     char num1[]="020";
     char num2[]="010";
     
-    size=strlen(num1);
+
     inicializarStructOperation(oper);
-    cargarStructNumeros(oper, &size, &size, num1, num2);
+    cargarStructNumeros(oper, size, size, num1, num2);
 	
     
     /*probar aca las funciones y luego imprimirlas*/
-     oper[0]->rst=resta_digito_a_digito(oper[0]->op1->digits,oper[0]->op2->digits,size,size);
-	for(i=0;i<size;i++)
-	printf("%d",oper[0]->rst[i]);
-
-
-}
-
-
-
-
-/* a probar las funciones de abajo */
-
-
-
-short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2)
-{
-	short *resultado=NULL; size_t carry=0,dif;int i=0;
-	dif=cant1-cant2;
-	if (!(resultado = (short*)malloc(sizeof(short)*(cant1-1))))
-    {
-        fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }
-	for(i=cant1-1;i>=0;i--)
-	{
-		if((dig1[i]-carry)<dig2[i-dif])
-		{
-			resultado[i]=10+dig1[i]-carry-dig2[i];
-			if(!carry) carry++;
-		}
-		else if ((i-dif)<0)
-			resultado[i]=dig1[i]-carry;
-		else
-		{
-			resultado[i]=dig1[i]-dig2[i]-carry;
-			carry=0;
-		}
-	}
-	return resultado;
-}
-
-void resta (operation_t **oper, size_t *pos)
-{
-	size_t i,flag=0;	
-	if ((oper[*pos]->op1->q_digits)>(oper[*pos]->op2->q_digits))
-	oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits);
-	else if((oper[*pos]->op1->q_digits)<(oper[*pos]->op2->q_digits))
-	oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits);
-	else
-	{
-		for(i=0;i<(oper[*pos]->op1->q_digits)-1;i++)
-		{	
-			if((oper[*pos]->op1->digits[i])>(oper[*pos]->op2->digits[i]))
-			{
-				flag=1;
-				break;
-			}
-		}
-		if (flag)
-		{
-			/*SIGNO POS*/
-			oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits);
-		}
-		else
-		{
-			for(i=0;i<(oper[*pos]->op1->q_digits)-1;i++)
-			{	
-				if( (oper[*pos]->op1->digits[i]) != (oper[*pos]->op2->digits[i]))
-				{
-					flag=1;
-					break;
-				}
-			}
-			if (flag)
-			{	
-				/*SIGNO NEG*/
-				oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits);
-			}
-			else 
-			{
-				oper[*pos]->rst=(short*)malloc(sizeof(short));
-				oper[*pos]->rst[0]=0;				/* Si llega acá el resultado es cero, corta."*/
-			}
-		}
+     oper[0]->rst=resta_digito_a_digito(oper[0]->op1->digits,oper[0]->op2->digits,oper[0]->op1->q_digits,oper[0]->op2->q_digits);
 	
-	}
+    for(i=0;i<*size;i++)
+        printf("%d",oper[0]->rst[i]);
+
 
 }
-short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
-{
-	size_t carry=0;short *resultado=NULL;size_t dif=cant1-cant2;int i;
-	if (!(resultado = (short*)malloc(sizeof(short)*(cant1+1))))
-    	{
-        	fprintf(stderr, "Error, could not find memory\n");
-        	return NULL;
-    	}
-	for(i=cant1-1;i>=0;i--)
-	{
-		resultado[i+1]=dig1[i]+dig2[i-dif]+carry;
-		if(resultado[i+1]>9)
-		{	
-			resultado[i+1]=resultado[i+1]-10;
-			carry++;
-		}
-	}
-	if(carry) resultado[0]=1;
-	else resultado[0]=0;
-    return resultado;
-}
 
-short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
-{
-	ushort** res_matriz=NULL;int i,k,j;ushort carry=0;short * res=NULL;
-	if (!(res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2))))
-    	{
-        	fprintf(stderr, "Error, could not find memory\n");
-        	return NULL;
-    	}
-	for(k=0;k<cant2;k++)
-	{
-		if (!( res_matriz[k] = (ushort*) malloc (  sizeof(ushort)*(cant1+1+k) )) )
-    		{
-        		fprintf(stderr, "Error, could not find memory\n");
-        		return NULL;
-    		}
-	}
-	for(k=0;k<cant2;k++)
-	{
-		for(i=cant1+1;i<=cant1+k;i++)
-		res_matriz[k][i]=0;
-	}
-	for(k=0;k<cant2;k++)
-	{
-		for(j=cant2-1;j>=0;j--)
-		{
-			carry=0;
-			for(i=cant1-1;i>=0;i--)
-			{
-				res_matriz[k][i+1]=(dig2[j]*dig1[i])+carry;
-				if (res_matriz[k][i+1]>9)
-				{
-					carry=findCarry(res_matriz[k][i+1]);
-					res_matriz[k][i+1]=res_matriz[k][i+1]-10*carry;
-				}
-			}
-			res_matriz[k][0]=carry;
-		}
-	}
-	if (!  ( res = (short*) malloc (  sizeof(short)*(cant1+cant2) )   ))
- 	{
-      		fprintf(stderr, "Error, could not find memory\n");
-       		return NULL;
-   	}
-	res=suma_digito_a_digito(res_matriz[1],res_matriz[0],cant1+2,cant1+1);
-	for(k=2;k<cant2;k++)
-	res=suma_digito_a_digito(res_matriz[k],(ushort*)res,cant1+1+k,cant1+1+k);
-	return res;	
-}
 
-ushort findCarry (ushort num)
-{
-	ushort i;
-	for(i=0;i<10;i++)
-	{
-		if((10*(i+1))>num)
-		break;
-	}
-	return i;
-}
+
+
+
+
+
 
