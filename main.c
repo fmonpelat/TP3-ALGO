@@ -16,7 +16,7 @@ typedef enum{ SIMPLECALC, SUPERCALC} calcMode_t;
 /*##### PROTOTIPOS #########*/
 void paso_linea_a_struct(char *linea,operation_t **operacion,int length);
 char * GetLines( void );
-status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operation);
+status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operation);
 char * searchEnter(char *str );
 char * prependChar(const char * str, char c);
 status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode);
@@ -47,7 +47,7 @@ int main(int argc,char *argv[])
         fprintf(stderr, "Modo invalido de invocacion\n");
         fprintf(stderr, "Se debe de invocar como $%s <mode> -p <precision>\n",argv[0]);
         fprintf(stderr, "<mode> : modo de la calculadora %s o %s\n",INPUT_MODE_SIMPLECALC,INPUT_MODE_SUPERCALC);
-        fprintf(stderr, "<precision> : precision del calculo antes de truncar Default: %d\n",DEFAULT_PRECISION);
+        fprintf(stderr, "<precision> : precision del calculo antes de truncar ( Default: %d )\n",DEFAULT_PRECISION);
         return EXIT_FAILURE;
     }
     
@@ -69,10 +69,10 @@ int main(int argc,char *argv[])
             
             
             input=GetLines();
-            statusLine=parseLines(&input, &num1, &num2, operation);
+            statusLine=parseLines(&input, &num1, &num2, &operation);
             
         
-            status_cargado=cargarStructNumeros(&operaciones, &oper_size, &oper_size, num1, num2);
+            status_cargado=cargarStructNumeros(&operaciones, &oper_size, &oper_size, num1, num2, operation);
             
             if (status_cargado==OK){
                 
@@ -84,6 +84,8 @@ int main(int argc,char *argv[])
             // hasta aca ya tenemos los 2 numeros y la operacion que tenemos que hacer....
             // falta pasar los numeros a la estructura
             // escribir las funciones que trabajaran sobre la estructura para hacer la suma resta y multiplicacion.
+            
+            oper_size++;
     
         }
         //impresion de resultados
@@ -223,7 +225,7 @@ char * GetLines( void )
     
 }
 
-status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operation)
+status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operation)
 {
     
     char *ptr;
@@ -254,7 +256,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                             ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                             *line1=ptr;
                             *line2=prependChar(ptr2, '-');
-                            operation=RESTA;
+                            *operation=RESTA;
                             return ok;
                         }
                         
@@ -265,7 +267,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                             *(searchEnter(ptr2))='\0';
                             *line1=ptr;
                             *line2=prependChar(ptr2,'+');
-                            operation=SUMA;
+                            *operation=SUMA;
                             return ok;
                         }
                     }
@@ -286,7 +288,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                             ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                             *line1=prependChar(ptr, '-');
                             *line2=prependChar(ptr2, '-');
-                            operation=RESTA;
+                            *operation=RESTA;
                             return ok;
                         }
                         
@@ -296,7 +298,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                             ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                             *line1=ptr;
                             *line2=prependChar(ptr2,'+');
-                            operation=SUMA;
+                            *operation=SUMA;
                             return ok;
                         }
                     }
@@ -318,7 +320,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                                 ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
-                                operation=SUMA;
+                                *operation=SUMA;
                                 return ok;
                             }
                             else
@@ -328,7 +330,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                                 ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
-                                operation=SUMA;
+                                *operation=SUMA;
                                 return ok;
 
                             }
@@ -343,7 +345,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
-                                operation=SUMA;
+                                *operation=SUMA;
                                 return ok;
                             }
                             else if((*totalLines)[i+1]=='+')
@@ -353,7 +355,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
-                                operation=SUMA;
+                                *operation=SUMA;
                                 return ok;
 
                             }
@@ -364,7 +366,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
-                                operation=SUMA;
+                                *operation=SUMA;
                                 return ok;
                             }
                         }
@@ -378,7 +380,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
-                                operation=MULT;
+                                *operation=MULT;
                                 return ok;
                             }
                             else if((*totalLines)[i+1]=='+')
@@ -388,7 +390,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
-                                operation=MULT;
+                                *operation=MULT;
                                 return ok;
                                 
                             }
@@ -401,7 +403,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t operatio
         if (!ptr) return eof;
     }
     else{
-        operation=NOOPERATION;
+        *operation=NOOPERATION;
         return eof;
     }
     
@@ -431,17 +433,19 @@ char * prependChar(const char * str, char c)
 void test(operation_t **oper,opt_t operation,size_t *size){
     
     int i;
-    char num1[]="020";
-    char num2[]="010";
+    /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
+    char num1[]="+10";
+    char num2[]="+05";
     
 
     inicializarStructOperation(oper);
-    cargarStructNumeros(oper, size, size, num1, num2);
+    cargarStructNumeros(oper, size, size, num1, num2, operation);
 	
     
     /*probar aca las funciones y luego imprimirlas*/
      oper[0]->rst=resta_digito_a_digito(oper[0]->op1->digits,oper[0]->op2->digits,oper[0]->op1->q_digits,oper[0]->op2->q_digits);
 	
+    
     for(i=0;i<*size;i++)
         printf("%d",oper[0]->rst[i]);
 

@@ -41,17 +41,23 @@ operation_status_t inicializarStructOperation(operation_t ** oper ){
     if( !((*oper)->op1=(bignum_t *)malloc( sizeof(bignum_t) )) )
     {
         fprintf(stderr, "no memory \n");
+        free(*oper);
         return NOMEM;
     }
     if( !((*oper)->op2=(bignum_t *)malloc( sizeof(bignum_t) )) )
     {
         fprintf(stderr, "no memory \n");
+        free((*oper)->op1);
+        free(*oper);
         return NOMEM;
     }
     
     if( !((*oper)->rst=(short *)malloc( sizeof(short) )) )
     {
         fprintf(stderr, "no memory \n");
+        free((*oper)->op1);
+        free((*oper)->op2);
+        free(*oper);
         return NOMEM;
     }
     
@@ -64,12 +70,13 @@ operation_status_t inicializarStructOperation(operation_t ** oper ){
 operation_status_t rezizeStructOperation(operation_t **oper,size_t *size){
     
 
-    (*oper)=(operation_t *)realloc((*oper),sizeof(*oper)*1);
+    (*oper)=(operation_t *)realloc((*oper),(sizeof(*oper)*(*size))+1);
     
     /* pido memoria para cada bignum_t */
     if( !(oper[*size]->op1=(bignum_t *)malloc( sizeof(bignum_t) )) )
     {
         fprintf(stderr, "no memory \n");
+        free_operation_t(oper, *size-1);
         return NOMEM;
     }
     if( !(oper[*size]->op2=(bignum_t *)malloc( sizeof(bignum_t) )) )
@@ -84,14 +91,13 @@ operation_status_t rezizeStructOperation(operation_t **oper,size_t *size){
         return NOMEM;
     }
     
-    (*size)++;
     
     return OK;
 }
 
 
 
-operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2)
+operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t operation)
 {
     
     size_t size_num1=0;
@@ -147,6 +153,10 @@ operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *p
         /* Agregamos q digits para saber hasta donde debemos iterar */
         oper[*pos]->op1->q_digits=size_num1-1;
         oper[*pos]->op2->q_digits=size_num2-1;
+        
+        /* agregamos la operacion a efectuar */
+        oper[*pos]->op=operation;
+
     }
     else return _EOF;
     
@@ -215,13 +225,16 @@ short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t ca
     return resultado;
 }
 
-void resta (operation_t **oper, size_t *pos)
+void resta ( operation_t **oper, size_t *pos )
 {
     size_t i,flag=0;
-    if ((oper[*pos]->op1->q_digits)>(oper[*pos]->op2->q_digits))
-        oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits);
+    
+    if ( (oper[*pos]->op1->q_digits) > (oper[*pos]->op2->q_digits) )
+        oper[*pos]->rst = resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits);
+    
     else if((oper[*pos]->op1->q_digits)<(oper[*pos]->op2->q_digits))
         oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits);
+    
     else
     {
         for(i=0;i<(oper[*pos]->op1->q_digits)-1;i++)
@@ -255,6 +268,7 @@ void resta (operation_t **oper, size_t *pos)
             else
             {
                 oper[*pos]->rst=(short*)malloc(sizeof(short));
+                //esto lo veo muy hardcodeado.....
                 oper[*pos]->rst[0]=0;				/* Si llega acá el resultado es cero, corta."*/
             }
         }

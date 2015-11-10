@@ -33,7 +33,7 @@ typedef struct operation{
 
 operation_status_t inicializarStructOperation(operation_t ** oper);
 operation_status_t rezizeStructOperation(operation_t **oper,size_t *size);
-operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2);
+operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t operation);
 void free_operation_t(operation_t ** oper,size_t size);
 short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2);
 short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2);
