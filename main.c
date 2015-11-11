@@ -130,8 +130,8 @@ void test(operation_t **oper,opt_t operation,size_t *size){
     
     int i;
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+10";
-    char num2[]="+05";
+    char num1[]="+100";
+    char num2[]="+50";
     
     
     inicializarStructOperation(oper);
