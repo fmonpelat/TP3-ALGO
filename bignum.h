@@ -26,19 +26,22 @@ typedef struct operation{
     bignum_t *op1, *op2;
     opt_t op;
     short *rst;
+    size_t q_rst;
     result_state_t st;
 } operation_t;
 
 
 
-operation_status_t inicializarStructOperation(operation_t ** oper);
-operation_status_t rezizeStructOperation(operation_t **oper,size_t *size);
-operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t operation);
-void free_operation_t(operation_t ** oper,size_t size);
-short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2);
-short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2);
-void resta (operation_t **oper, size_t *pos);
-ushort findCarry (ushort num);
+operation_status_t inicializarStructOperation(operation_t ** );
+operation_status_t rezizeStructOperation(operation_t **,size_t *);
+operation_status_t cargarStructNumeros(operation_t **,size_t *,size_t *,char *,char *, opt_t );
+void free_operation_t(operation_t ** ,size_t);
+
+short * resta_digito_a_digito (ushort *, ushort *,size_t ,size_t , size_t*);
+short * suma_digito_a_digito (ushort * ,ushort * , size_t , size_t );
+short * multiplico (ushort * , ushort *, size_t , size_t );
+void resta (operation_t **, size_t *);
+ushort findCarry (ushort );
 
 /*bignum_t* add_bignum( const bignum_t * , const bignum_t * ) ;
 bignum_t* substract_bignum( const bignum_t * , const bignum_t * ) ;

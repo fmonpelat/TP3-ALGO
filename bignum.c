@@ -51,7 +51,7 @@ operation_status_t inicializarStructOperation(operation_t ** oper ){
         free(*oper);
         return NOMEM;
     }
-    
+    /* no se debe de pedir memoria para rst ya que la funcion que hace la operacio directamente pide memoria de acuerdo a la cantidad de digitos que debe de agregar
     if( !((*oper)->rst=(short *)malloc( sizeof(short) )) )
     {
         fprintf(stderr, "no memory \n");
@@ -60,7 +60,7 @@ operation_status_t inicializarStructOperation(operation_t ** oper ){
         free(*oper);
         return NOMEM;
     }
-    
+    */
     
     
     return OK;
@@ -194,7 +194,7 @@ void free_operation_t(operation_t ** oper,size_t size){
 
 
 
-short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2)
+short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2, size_t *q_resultado)
 {
     short *resultado=NULL;
     size_t carry=0,dif;
@@ -202,7 +202,8 @@ short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t ca
     
     dif=cant1-cant2;
     
-    if (!(resultado = (short*)malloc(sizeof(short)*(cant1-1))))
+    // aca hay algo raro si cant1==cant2 entonces pedimos memoria para cant1 - 1 ?? deberiamos pedir para cant que es el mas grande de los numeros aunque no utilizemos todos
+    if (!(resultado = (short*)malloc(sizeof(short)*(cant1))))
     {
         fprintf(stderr, "Error, could not find memory\n");
         return NULL;
@@ -211,6 +212,7 @@ short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t ca
     {
         if((dig1[i]-carry)<dig2[i-dif])
         {
+            //le pedimos prestado un 1 al de al lado a dig1[i-1]
             resultado[i]=10+dig1[i]-carry-dig2[i];
             if(!carry) carry++;
         }
@@ -218,10 +220,11 @@ short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t ca
             resultado[i]=dig1[i]-carry;
         else
         {
-            resultado[i]=dig1[i]-dig2[i]-carry;
+            resultado[i]=(dig1[i]-carry)-dig2[i];
             carry=0;
         }
     }
+    *q_resultado=cant1;
     return resultado;
 }
 
@@ -230,10 +233,10 @@ void resta ( operation_t **oper, size_t *pos )
     size_t i,flag=0;
     
     if ( (oper[*pos]->op1->q_digits) > (oper[*pos]->op2->q_digits) )
-        oper[*pos]->rst = resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits);
+        oper[*pos]->rst = resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits,&(oper[*pos]->q_rst));
     
     else if((oper[*pos]->op1->q_digits)<(oper[*pos]->op2->q_digits))
-        oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits);
+        oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits,&(oper[*pos]->q_rst));
     
     else
     {
@@ -248,7 +251,7 @@ void resta ( operation_t **oper, size_t *pos )
         if (flag)
         {
             /*SIGNO POS*/
-            oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits);
+            oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits,&(oper[*pos]->q_rst));
         }
         else
         {
@@ -263,7 +266,7 @@ void resta ( operation_t **oper, size_t *pos )
             if (flag)
             {
                 /*SIGNO NEG*/
-                oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits);
+                oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits,&(oper[*pos]->q_rst));
             }
             else
             {

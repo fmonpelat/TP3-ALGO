@@ -21,7 +21,7 @@ char * searchEnter(char *str );
 char * prependChar(const char * str, char c);
 status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode);
 void test(operation_t **oper,opt_t operation,size_t *size);
-
+void printArrayShort(short * ,size_t);
 /*#########################*/
 
 
@@ -123,8 +123,33 @@ int main(int argc,char *argv[])
 
 
 
+/*###############################*/
+/*####### funciones #############*/
 
-/* funciones */
+void test(operation_t **oper,opt_t operation,size_t *size){
+    
+    int i;
+    /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
+    char num1[]="+10";
+    char num2[]="+05";
+    
+    
+    inicializarStructOperation(oper);
+    cargarStructNumeros(oper, size, size, num1, num2, operation);
+    
+    
+    /*probar aca las funciones y luego imprimirlas*/
+    
+    /* Prueba de resta_digito_a_digito() */
+    oper[0]->rst = resta_digito_a_digito(oper[0]->op1->digits,oper[0]->op2->digits,oper[0]->op1->q_digits,oper[0]->op2->q_digits,&(oper[0]->q_rst));
+    printArrayShort(oper[0]->rst,oper[0]->q_rst);
+    
+    /* Prueba de resta() */
+   
+    
+    
+}
+
 
 
 status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode)
@@ -429,29 +454,15 @@ char * prependChar(const char * str, char c)
     return string;
 }
 
-
-void test(operation_t **oper,opt_t operation,size_t *size){
+void printArrayShort(short *str,size_t size){
     
-    int i;
-    /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+10";
-    char num2[]="+05";
+    size_t i=0;
     
-
-    inicializarStructOperation(oper);
-    cargarStructNumeros(oper, size, size, num1, num2, operation);
-	
-    
-    /*probar aca las funciones y luego imprimirlas*/
-     oper[0]->rst=resta_digito_a_digito(oper[0]->op1->digits,oper[0]->op2->digits,oper[0]->op1->q_digits,oper[0]->op2->q_digits);
-	
-    
-    for(i=0;i<*size;i++)
-        printf("%d",oper[0]->rst[i]);
-
-
+    for (i=0; i<size; i++) {
+        printf("%d",str[i]);
+        fflush(stdout);
+    }
 }
-
 
 
 
