@@ -1,45 +1,55 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <time.h>
+#include <math.h>
 #include <string.h>
 #include "bignum.h"
 
+
+// Defines para supercalc
 #define MAX_STR 10
 #define VALID_ARGUMENTS 2 /* argumentos de entrada por parametro 1-> nombre del programa 2-> modo del programa (simplecalc o supercalc)*/
 #define DEFAULT_PRECISION 1000
 #define INPUT_MODE_SIMPLECALC "simpleCalc"
 #define INPUT_MODE_SUPERCALC "superCalc"
 
+// typedef de supercalc
 typedef enum{ eof, ok, error, nomem, nooperation, invalidsintax} status_t;
 typedef enum{ SIMPLECALC, SUPERCALC} calcMode_t;
 
+
+
 /*##### PROTOTIPOS #########*/
-void paso_linea_a_struct(char *linea,operation_t **operacion,int length);
+
+void paso_linea_a_struct( char *, operation_t **, int );
 char * GetLines( void );
-status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operation);
-char * searchEnter(char *str );
-char * prependChar(const char * str, char c);
-status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode);
-void test(operation_t **oper,opt_t operation,size_t *size);
+status_t parseLines( char ** ,char ** , char **, opt_t * );
+char * searchEnter(char * );
+char * prependChar(const char * , char );
+status_t ValidateArguments(int ,char **,int *,calcMode_t *);
+void test(operation_vector_t * );
 void printArrayShort(short * ,size_t);
+
 /*#########################*/
 
 
 
 int main(int argc,char *argv[])
 {
-    operation_t *operaciones=NULL; /* Creo un vector de punteros a operation_t*/
-    size_t oper_size=0;
+    operation_vector_t operaciones_vect;
+    //operation_t *operaciones=NULL; /* Creo un vector de punteros a operation_t*/
+    //size_t oper_size=0;
+    
     char *num1=NULL;
     char *num2=NULL;
     char *input=NULL;
     status_t statusLine=ok;
-    opt_t operation=NOOPERATION; /* para saber si existe una operacion valida */
     operation_status_t status_cargado=OK;
     calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
     int precision=DEFAULT_PRECISION;
-    int n=0,length = 0;
-    size_t i=0;
+
+
 
     
     if (argc<VALID_ARGUMENTS)
@@ -57,43 +67,55 @@ int main(int argc,char *argv[])
     if ( calcmode==SUPERCALC )
     {
         
-        test(&operaciones,RESTA,&oper_size);
-        /*
-        inicializarStructOperation(&operaciones);
+        /* test(&operaciones_vect); */
+        
+        inicializarStructOperation(&operaciones_vect);
         
         while (statusLine!=eof)
         {
-            /* Agrandamos el array de operaciones si no es la primera vez
-            if (oper_size!=0) rezizeStructOperation(&operaciones,&oper_size);
+            /* Agrandamos el array de operaciones si no es la primera vez */
+            AddOperation(&operaciones_vect);
             
             
             
             input=GetLines();
-            statusLine=parseLines(&input, &num1, &num2, &operation);
+            statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
+            status_cargado=cargarStructNumeros(operaciones_vect.operaciones, &(operaciones_vect.oper_size), &(operaciones_vect.oper_size), num1, num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op));
             
-        
-            status_cargado=cargarStructNumeros(&operaciones, &oper_size, &oper_size, num1, num2, operation);
+            printf("DEBUG numero1:");
+            printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->q_digits);
+            printf("\nDEBUG numero2:");
+            printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->q_digits);
+            printf("\n");
+
             
-            if (status_cargado==OK){
-                
-                for (i=0; i<operaciones[oper_size].op1->q_digits; i++){
-                    if(statusLine==ok) printf("num1:%d\n",operaciones[oper_size].op1->digits[i]);
+            if (status_cargado==OK)
+            {
+                switch (operaciones_vect.operaciones[operaciones_vect.oper_size]->op) {
+                    case SUMA:
+                        suma(&(operaciones_vect.operaciones[operaciones_vect.oper_size]), &(operaciones_vect.oper_size) );
+                        break;
+                    case RESTA:
+                        resta(&(operaciones_vect.operaciones[operaciones_vect.oper_size]), &(operaciones_vect.oper_size) );
+                        break;
+                    case MULT:
+                        multiplicar(&(operaciones_vect.operaciones[operaciones_vect.oper_size]), &(operaciones_vect.oper_size) );
+                        break;
+                        
+                    default:
+                        break;
                 }
-                
+                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst);
+                printf("\n");
+                operaciones_vect.oper_size++;
+                printf("DEBUG oper_size: %zu\n",operaciones_vect.oper_size);
+
             }
-            // hasta aca ya tenemos los 2 numeros y la operacion que tenemos que hacer....
-            // falta pasar los numeros a la estructura
-            // escribir las funciones que trabajaran sobre la estructura para hacer la suma resta y multiplicacion.
-            
-            oper_size++;
-    
+        
         }
-        //impresion de resultados
-         */
-         
-         
-        //liberar memoria
-        free_operation_t(&operaciones, oper_size);
+        
+        //liberamos memoria
+        free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size);
         free(input);
         free(num1);
         free(num2);
@@ -101,8 +123,7 @@ int main(int argc,char *argv[])
         num1=NULL;
         num2=NULL;
 
-         
-
+        
     }
     else if( calcmode==SIMPLECALC)
     {
@@ -126,27 +147,73 @@ int main(int argc,char *argv[])
 /*###############################*/
 /*####### funciones #############*/
 
-void test(operation_t **oper,opt_t operation,size_t *size){
+void test(operation_vector_t * oper_vect)
+{
     
-    int i;
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+100";
-    char num2[]="+50";
+    char num1[]="+10";
+    char num2[]="+3";
+    opt_t operation=MULT;
+    
+    	
+    inicializarStructOperation(oper_vect);
+    AddOperation(oper_vect);
+    cargarStructNumeros(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) );
     
     
-    inicializarStructOperation(oper);
-    cargarStructNumeros(oper, size, size, num1, num2, operation);
+    /*probamos las funciones una por una */
+    
+    /* Prueba de resta_digito_a_digito() probar con los numeros siguientes num1 > num2 en caracteres
+       char num1[]="+40";
+       char num2[]="+2";
+    
+    opt_t operation=RESTA;
+    
+    oper_vect->operaciones[oper_vect->oper_size]->rst = resta_digito_a_digito(oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
+                                         oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
+                                         oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
+                                         oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
+                                         &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
+    
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst);
+    printf("\n");
+    */
     
     
-    /*probar aca las funciones y luego imprimirlas*/
+    /* Prueba de resta()
+    resta(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size));
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst);
+    printf("\n");
+    */
     
-    /* Prueba de resta_digito_a_digito() */
-    oper[0]->rst = resta_digito_a_digito(oper[0]->op1->digits,oper[0]->op2->digits,oper[0]->op1->q_digits,oper[0]->op2->q_digits,&(oper[0]->q_rst));
-    printArrayShort(oper[0]->rst,oper[0]->q_rst);
+    /* Prueba de suma_digito_a_digito() (no funciona si el primer op1 tiene mas caracteres que el op2 se llama a suma para contrarestar este problema.)
+    oper_vect->operaciones[oper_vect->oper_size]->rst = suma_digito_a_digito(oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
+                                                                             oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
+                                                                             oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
+                                                                             oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
+                                                                             &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
     
-    /* Prueba de resta() */
-   
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,oper_vect->operaciones[oper_vect->oper_size]->q_rst);
+    printf("\n");
+    */
     
+    /* Prueba de suma()
+
+    suma( &(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size) );
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst);
+    printf("\n");
+    */
+    
+    /* Prueba de Multiplicacion */
+    oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
+                                                                   oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
+                                                                   oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
+                                                                   oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
+                                                                   &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst);
+    printf("\n");
+    
+
     
 }
 
@@ -355,7 +422,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
-                                *operation=SUMA;
+                                *operation=RESTA;
                                 return ok;
 
                             }
@@ -400,9 +467,9 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                         {
                             if ((*totalLines)[i+1]=='-')
                             {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001+-222 */
-                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
+                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001*-222 */
+                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
+                                ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
                                 *operation=MULT;
@@ -410,14 +477,24 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                             }
                             else if((*totalLines)[i+1]=='+')
                             {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001++222 */
-                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
+                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001*+222 */
+                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
                                 *operation=MULT;
                                 return ok;
                                 
+                            }
+                            else
+                            {
+                                /* si llegamos hasta aca quiere decir que se ingreso algo como 10*3 */
+                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
+                                ptr2=strtok(NULL,"*"); /* este es nuestro primer numero */
+                                *line1=prependChar(ptr,'+');
+                                *line2=prependChar(ptr2,'+');
+                                *operation=MULT;
+                                return ok;
                             }
                         }
                     }
@@ -457,9 +534,15 @@ char * prependChar(const char * str, char c)
 void printArrayShort(short *str,size_t size){
     
     size_t i=0;
+    int flag_print=0;
+    // 0110
+    //
     
-    for (i=0; i<size; i++) {
-        printf("%d",str[i]);
+    for (i=0; i<size ; i++) {
+        if (str[i]!=0 || flag_print ) {
+            flag_print=1;
+            printf("%d",str[i]);
+        }
         fflush(stdout);
     }
 }

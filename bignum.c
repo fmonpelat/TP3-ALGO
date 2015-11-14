@@ -27,77 +27,54 @@
  } operation_t;
 */
 
-operation_status_t inicializarStructOperation(operation_t ** oper ){
+operation_status_t inicializarStructOperation(operation_vector_t * oper ){
     
-
-    /* pido memoria para el array de operaciones */
-    if( !(*oper=(operation_t *)malloc( sizeof(operation_t) )) )
-    {
-        fprintf(stderr, "no memory \n");
-        return NOMEM;
-    }
-    
-    /* pido memoria para cada bignum_t */
-    if( !((*oper)->op1=(bignum_t *)malloc( sizeof(bignum_t) )) )
-    {
-        fprintf(stderr, "no memory \n");
-        free(*oper);
-        return NOMEM;
-    }
-    if( !((*oper)->op2=(bignum_t *)malloc( sizeof(bignum_t) )) )
-    {
-        fprintf(stderr, "no memory \n");
-        free((*oper)->op1);
-        free(*oper);
-        return NOMEM;
-    }
-    /* no se debe de pedir memoria para rst ya que la funcion que hace la operacio directamente pide memoria de acuerdo a la cantidad de digitos que debe de agregar
-    if( !((*oper)->rst=(short *)malloc( sizeof(short) )) )
-    {
-        fprintf(stderr, "no memory \n");
-        free((*oper)->op1);
-        free((*oper)->op2);
-        free(*oper);
-        return NOMEM;
-    }
-    */
-    
-    
+    oper->operaciones=NULL;
+    oper->oper_size=0;
     return OK;
 }
 
 
-operation_status_t rezizeStructOperation(operation_t **oper,size_t *size){
+operation_status_t AddOperation(operation_vector_t *oper){
     
+    operation_t **ppAux=NULL;
+    operation_t *pAux;
 
-    (*oper)=(operation_t *)realloc((*oper),(sizeof(*oper)*(*size))+1);
+    if ( !(ppAux=(operation_t **)realloc(oper->operaciones,( sizeof(operation_t*) * (oper->oper_size+1)) ) )  )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    
+    (oper->operaciones)=ppAux;
+    
+    if (!(pAux=(operation_t *)malloc(sizeof(operation_t) )) ) {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    oper->operaciones[oper->oper_size]=pAux;
+    
     
     /* pido memoria para cada bignum_t */
-    if( !(oper[*size]->op1=(bignum_t *)malloc( sizeof(bignum_t) )) )
-    {
-        fprintf(stderr, "no memory \n");
-        free_operation_t(oper, *size-1);
-        return NOMEM;
-    }
-    if( !(oper[*size]->op2=(bignum_t *)malloc( sizeof(bignum_t) )) )
+    if( !(oper->operaciones[oper->oper_size]->op1=(bignum_t *)malloc( sizeof(bignum_t) )) )
     {
         fprintf(stderr, "no memory \n");
         return NOMEM;
     }
-    
-    if( !(oper[*size]->rst=(short *)malloc( sizeof(short) )) )
+    if( !(oper->operaciones[oper->oper_size]->op2=(bignum_t *)malloc( sizeof(bignum_t) )) )
     {
         fprintf(stderr, "no memory \n");
         return NOMEM;
     }
     
+    oper->operaciones[oper->oper_size]->op=NOOPERATION;
     
     return OK;
 }
 
 
 
-operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t operation)
+operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t *operation)
 {
     
     size_t size_num1=0;
@@ -155,7 +132,7 @@ operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *p
         oper[*pos]->op2->q_digits=size_num2-1;
         
         /* agregamos la operacion a efectuar */
-        oper[*pos]->op=operation;
+        oper[*pos]->op=*operation;
 
     }
     else return _EOF;
@@ -170,7 +147,7 @@ void free_operation_t(operation_t ** oper,size_t size){
     size_t i=0;
     
     
-    for (i=0; i<=size; i++) {
+    for (i=0; i<size; i++) {
         
         free( oper[i]->op1->digits);
         oper[i]->op1->digits=NULL;
@@ -193,40 +170,6 @@ void free_operation_t(operation_t ** oper,size_t size){
 }
 
 
-
-short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2, size_t *q_resultado)
-{
-    short *resultado=NULL;
-    size_t carry=0,dif;
-    int i=0;
-    
-    dif=cant1-cant2;
-    
-    // aca hay algo raro si cant1==cant2 entonces pedimos memoria para cant1 - 1 ?? deberiamos pedir para cant que es el mas grande de los numeros aunque no utilizemos todos
-    if (!(resultado = (short*)malloc(sizeof(short)*(cant1))))
-    {
-        fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }
-    for(i=cant1-1;i>=0;i--)
-    {
-        if((dig1[i]-carry)<dig2[i-dif])
-        {
-            //le pedimos prestado un 1 al de al lado a dig1[i-1]
-            resultado[i]=10+dig1[i]-carry-dig2[i];
-            if(!carry) carry++;
-        }
-        else if ((i-dif)<0)
-            resultado[i]=dig1[i]-carry;
-        else
-        {
-            resultado[i]=(dig1[i]-carry)-dig2[i];
-            carry=0;
-        }
-    }
-    *q_resultado=cant1;
-    return resultado;
-}
 
 void resta ( operation_t **oper, size_t *pos )
 {
@@ -279,9 +222,32 @@ void resta ( operation_t **oper, size_t *pos )
     }
     
 }
-short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
+
+void suma( operation_t ** oper, size_t *size)
 {
-    size_t carry=0;short *resultado=NULL;size_t dif=cant1-cant2;int i;
+    
+    
+    if ( oper[*size]->op1->q_digits < oper[*size]->op2->q_digits )
+    {
+        oper[*size]->rst=suma_digito_a_digito(oper[*size]->op2->digits, oper[*size]->op1->digits, oper[*size]->op2->q_digits, oper[*size]->op1->q_digits, &(oper[*size]->q_rst) );
+    }
+    else
+    {
+        oper[*size]->rst=suma_digito_a_digito(oper[*size]->op1->digits, oper[*size]->op2->digits, oper[*size]->op1->q_digits, oper[*size]->op2->q_digits, &(oper[*size]->q_rst) );
+    }
+    
+}
+
+
+
+short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
+{
+    size_t carry=0;
+    short *resultado=NULL;
+    int dif=cant1-cant2;
+    int i;
+    //for(i=0;i<cant1;i++)
+    //	printf("%d\n",dig1[i]);
     if (!(resultado = (short*)malloc(sizeof(short)*(cant1+1))))
     {
         fprintf(stderr, "Error, could not find memory\n");
@@ -289,21 +255,72 @@ short * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t ca
     }
     for(i=cant1-1;i>=0;i--)
     {
-        resultado[i+1]=dig1[i]+dig2[i-dif]+carry;
+        if(i-dif<0) {resultado[i+1]=dig1[i]+carry;carry=0;}
+        else
+            resultado[i+1]=dig1[i]+dig2[i-dif]+carry;
+        
+        carry=0;
+        //printf("%d\n",resultado[i+1]);
         if(resultado[i+1]>9)
         {
+            
             resultado[i+1]=resultado[i+1]-10;
             carry++;
+            
         }
+        
+        
+        //printf("%d\n",carry);
     }
-    if(carry) resultado[0]=1;
-    else resultado[0]=0;
+    //printf("\n%d\n",carry);
+    resultado[0]=carry;
+    *q_resultado=cant1+1;
+    
     return resultado;
 }
 
-short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
+short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2, size_t *q_resultado)
 {
-    ushort** res_matriz=NULL;int i,k,j;ushort carry=0;short * res=NULL;
+    short *resultado=NULL;
+    int carry=0,dif;
+    int i=0;
+    
+    dif=cant1-cant2;
+    
+    
+    // aca hay algo raro si cant1==cant2 entonces pedimos memoria para cant1 - 1 ?? deberiamos pedir para cant que es el mas grande de los numeros aunque no utilizemos todos
+    if (!(resultado = (short*)malloc(sizeof(short)*(cant1))))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+    for(i=cant1-1;i>=0;i--)
+    {
+        if (i-dif<0)
+        {resultado[i]=dig1[i]-carry;
+            
+            carry=0;}
+        else if((dig1[i]-carry)<dig2[i-dif])
+        {
+            //le pedimos prestado un 1 al de al lado a dig1[i-1]
+            resultado[i]=10+dig1[i]-carry-dig2[i-dif];
+            if(carry==0) carry=carry+1;
+            //printf("%d\n",resultado[i]);
+        }
+        else
+        {
+            resultado[i]=(dig1[i]-carry)-dig2[i-dif];
+            carry=0;
+            //printf("%d\n",resultado[i]);
+        }
+    }
+    *q_resultado=cant1;
+    return resultado;
+}
+
+short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
+{
+    ushort** res_matriz=NULL;int i,k,j,cont=0;int carry=0;ushort * res_aux=NULL;short * res=NULL;
     if (!(res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2))))
     {
         fprintf(stderr, "Error, could not find memory\n");
@@ -319,9 +336,10 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
     }
     for(k=0;k<cant2;k++)
     {
-        for(i=cant1+1;i<=cant1+k;i++)
+        for(i=0;i<=cant1+k;i++)
             res_matriz[k][i]=0;
     }
+    
     for(k=0;k<cant2;k++)
     {
         for(j=cant2-1;j>=0;j--)
@@ -339,16 +357,32 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2)
             res_matriz[k][0]=carry;
         }
     }
-    if (!  ( res = (short*) malloc (  sizeof(short)*(cant1+cant2) )   ))
+    
+    if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(cant1+cant2) )   ))
     {
       		fprintf(stderr, "Error, could not find memory\n");
         return NULL;
-   	}
-    res=suma_digito_a_digito(res_matriz[1],res_matriz[0],cant1+2,cant1+1);
-    for(k=2;k<cant2;k++)
-        res=suma_digito_a_digito(res_matriz[k],(ushort*)res,cant1+1+k,cant1+1+k);
-    return res;	
+    }
+    for(i=0;i<cant1+cant2;i++) //Lleno res con ceros para poder hacer la suma
+        res[i]=0;
+    
+    for(k=cant2-1;k>=0;k--)   // Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.
+    {
+        res=suma_digito_a_digito(res,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
+        cont++;
+    }
+    
+    *q_resultado=cant1+cant2+cont;
+    return res;
 }
+
+void multiplicar(operation_t ** oper, size_t *size )
+{
+    oper[*size]->rst = multiplico(oper[*size]->op1->digits,oper[*size]->op2->digits,oper[*size]->op1->q_digits,oper[*size]->op2->q_digits,&(oper[*size]->q_rst));
+
+}
+
+
 
 ushort findCarry (ushort num)
 {
@@ -360,8 +394,6 @@ ushort findCarry (ushort num)
     }
     return i;
 }
-
-
 
 
 
