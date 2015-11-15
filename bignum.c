@@ -175,6 +175,21 @@ void resta ( operation_vector_t *oper, size_t *pos)
 {
     size_t i,flag=0;
     
+    
+    if (oper->operaciones[*pos]->op1->sign == NEGATIVE && oper->operaciones[*pos]->op1->sign == NEGATIVE)
+    {
+        if ( oper->operaciones[*pos]->op1->q_digits < oper->operaciones[*pos]->op2->q_digits )
+        {
+            oper->operaciones[*pos]->rst=suma_digito_a_digito(oper->operaciones[*pos]->op2->digits, oper->operaciones[*pos]->op1->digits, oper->operaciones[*pos]->op2->q_digits, oper->operaciones[*pos]->op1->q_digits, &(oper->operaciones[*pos]->q_rst) );
+        }
+        else
+        {
+            oper->operaciones[*pos]->rst=suma_digito_a_digito(oper->operaciones[*pos]->op1->digits, oper->operaciones[*pos]->op2->digits, oper->operaciones[*pos]->op1->q_digits, oper->operaciones[*pos]->op2->q_digits, &(oper->operaciones[*pos]->q_rst) );
+        }
+        oper->operaciones[*pos]->sign_rst=NEGATIVE;
+        return;
+    }
+    
     if ( (oper->operaciones[*pos]->op1->q_digits) > (oper->operaciones[*pos]->op2->q_digits) )
         oper->operaciones[*pos]->rst = resta_digito_a_digito(oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->q_digits,oper->operaciones[*pos]->op2->q_digits,&(oper->operaciones[*pos]->q_rst));
     
@@ -210,6 +225,7 @@ void resta ( operation_vector_t *oper, size_t *pos)
             {
                 /*SIGNO NEG*/
                 oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->q_digits,oper->operaciones[*pos]->op1->q_digits,&(oper->operaciones[*pos]->q_rst));
+                oper->operaciones[*pos]->sign_rst=NEGATIVE;
             }
             else
             {
@@ -225,15 +241,76 @@ void resta ( operation_vector_t *oper, size_t *pos)
 
 void suma( operation_vector_t *oper, size_t *size)
 {
+    size_t i,flag=0;
+    
+
+    if(oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==POSITIVE)
+    {
+        if ( (oper->operaciones[*size]->op1->q_digits) > (oper->operaciones[*size]->op2->q_digits) )
+        {
+            oper->operaciones[*size]->rst = resta_digito_a_digito(oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->q_digits,oper->operaciones[*size]->op2->q_digits,&(oper->operaciones[*size]->q_rst));
+            oper->operaciones[*size]->sign_rst=NEGATIVE;
+        }
+        else if((oper->operaciones[*size]->op1->q_digits)<(oper->operaciones[*size]->op2->q_digits))
+        {
+            oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->q_digits,oper->operaciones[*size]->op1->q_digits,&(oper->operaciones[*size]->q_rst));
+            oper->operaciones[*size]->sign_rst=POSITIVE;
+        }
+        else
+        {
+            for(i=0;i<(oper->operaciones[*size]->op1->q_digits)-1;i++)
+            {
+                if((oper->operaciones[*size]->op1->digits[i])>(oper->operaciones[*size]->op2->digits[i]))
+                {
+                    flag=1;
+                    break;
+                }
+            }
+            if (flag)
+            {
+                /*SIGNO POS*/
+                oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->q_digits,oper->operaciones[*size]->op2->q_digits,&(oper->operaciones[*size]->q_rst));
+            }
+            else
+            {
+                for(i=0;i<(oper->operaciones[*size]->op1->q_digits)-1;i++)
+                {
+                    if( (oper->operaciones[*size]->op1->digits[i]) != (oper->operaciones[*size]->op2->digits[i]))
+                    {
+                        flag=1;
+                        break;
+                    }
+                }
+                if (flag)
+                {
+                    /*SIGNO NEG*/
+                    oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->q_digits,oper->operaciones[*size]->op1->q_digits,&(oper->operaciones[*size]->q_rst));
+                    oper->operaciones[*size]->sign_rst=NEGATIVE;
+                }
+                else
+                {
+                    oper->operaciones[*size]->rst=(short*)malloc(sizeof(short));
+                    //esto lo veo muy hardcodeado.....
+                    oper->operaciones[*size]->rst[0]=0;				/* Si llega acá el resultado es cero, corta."*/
+                }
+            }
+        }
+            
+            
+    }
     
     if ( oper->operaciones[*size]->op1->q_digits < oper->operaciones[*size]->op2->q_digits )
     {
         oper->operaciones[*size]->rst=suma_digito_a_digito(oper->operaciones[*size]->op2->digits, oper->operaciones[*size]->op1->digits, oper->operaciones[*size]->op2->q_digits, oper->operaciones[*size]->op1->q_digits, &(oper->operaciones[*size]->q_rst) );
+        oper->operaciones[*size]->sign_rst=NEGATIVE;
     }
     else
     {
         oper->operaciones[*size]->rst=suma_digito_a_digito(oper->operaciones[*size]->op1->digits, oper->operaciones[*size]->op2->digits, oper->operaciones[*size]->op1->q_digits, oper->operaciones[*size]->op2->q_digits, &(oper->operaciones[*size]->q_rst) );
+        oper->operaciones[*size]->sign_rst=NEGATIVE;
     }
+    
+    
     
 }
 
@@ -378,7 +455,19 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
 void multiplicar(operation_vector_t *oper, size_t *size )
 {
     oper->operaciones[*size]->rst = multiplico(oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->q_digits,oper->operaciones[*size]->op2->q_digits,&(oper->operaciones[*size]->q_rst));
-
+    if (oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==NEGATIVE)
+    {
+        oper->operaciones[*size]->sign_rst=POSITIVE;
+    }
+    else if(oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==POSITIVE)
+    {
+        oper->operaciones[*size]->sign_rst=NEGATIVE;
+    }
+    else if(oper->operaciones[*size]->op1->sign==POSITIVE && oper->operaciones[*size]->op2->sign==NEGATIVE)
+    {
+        oper->operaciones[*size]->sign_rst=NEGATIVE;
+    }
+    else    oper->operaciones[*size]->sign_rst=POSITIVE;
 }
 
 

@@ -27,9 +27,9 @@ char * GetLines( void );
 status_t parseLines( char ** ,char ** , char **, opt_t * );
 char * searchEnter(char * );
 char * prependChar(const char * , char );
-status_t ValidateArguments(int ,char **,int *,calcMode_t *);
+status_t ValidateArguments(int ,char **,size_t *,calcMode_t *);
 void test(operation_vector_t * );
-void printArrayShort(short * ,size_t);
+void printArrayShort(short *str,size_t size,sign_t sign,size_t precision);
 
 /*#########################*/
 
@@ -47,7 +47,7 @@ int main(int argc,char *argv[])
     status_t statusLine=ok;
     operation_status_t status_cargado=OK;
     calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
-    int precision=DEFAULT_PRECISION;
+    size_t precision=DEFAULT_PRECISION;
 
 
 
@@ -83,9 +83,9 @@ int main(int argc,char *argv[])
             status_cargado=cargarStructNumeros(operaciones_vect.operaciones, &(operaciones_vect.oper_size), &(operaciones_vect.oper_size), num1, num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op));
             
             printf("DEBUG numero1:");
-            printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->q_digits);
+            printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->q_digits,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
             printf("\nDEBUG numero2:");
-            printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->q_digits);
+            printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->q_digits,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
             printf("\n");
 
             
@@ -104,7 +104,7 @@ int main(int argc,char *argv[])
                     default:
                         break;
                 }
-                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst);
+                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
                 printf("\n");
                 operaciones_vect.oper_size++;
                 printf("DEBUG oper_size: %zu\n",operaciones_vect.oper_size);
@@ -148,6 +148,7 @@ int main(int argc,char *argv[])
 
 void test(operation_vector_t * oper_vect)
 {
+    size_t precision=DEFAULT_PRECISION;
     
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
     char num1[]="+10";
@@ -209,7 +210,7 @@ void test(operation_vector_t * oper_vect)
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
                                                                    &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst);
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst,oper_vect->operaciones[oper_vect->oper_size]->sign_rst,precision);
     printf("\n");
     
 
@@ -218,7 +219,7 @@ void test(operation_vector_t * oper_vect)
 
 
 
-status_t ValidateArguments(int argc,char **argv,int *precision,calcMode_t *mode)
+status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mode)
 {
     
     size_t i=0;
@@ -392,6 +393,28 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                             *operation=SUMA;
                             return ok;
                         }
+                        if ((*totalLines)[i]=='*')
+                        {
+                            if ((*totalLines)[i+1]=='-')
+                            {
+                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
+                                ptr2=strtok(NULL,"*"); /* este es nuestro primer numero */
+                                *line1=prependChar(ptr, '-');
+                                *line2=prependChar(ptr2, '-');
+                                *operation=MULT;
+                                return ok;
+                            }
+                            else
+                            {
+                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
+                                ptr2=strtok(NULL,"*"); /* este es nuestro primer numero */
+                                /**line1=prependChar(ptr, '-');*/
+                                *line1=ptr;
+                                *line2=prependChar(ptr2, '+');
+                                *operation=MULT;
+                                return ok;
+                            }
+                        }
                     }
                 }
                 ptr=NULL; /* Si llegamos hasta aca es porque no se ingreso una operacion */
@@ -524,20 +547,21 @@ char * searchEnter(char *str ){
 
 char * prependChar(const char * str, char c)
 {
-    char * string = (char *)malloc( strlen(str)+2 );/* añadimos 2 posiciones una para el caracter y otra para el \0 */
+    char * string = (char *)malloc( strlen(str)+2 ); /* añadimos 2 posiciones una para el caracter y otra para el \0 */
     string[0] = c;
     strcpy(string + 1, str);
     return string;
 }
 
-void printArrayShort(short *str,size_t size){
+void printArrayShort(short *str,size_t size,sign_t sign,size_t precision){
     
     size_t i=0;
     int flag_print=0;
-    // 0110
-    //
+    size_t pres=0;
     
-    for (i=0; i<size ; i++) {
+    if (sign==NEGATIVE) printf("-");
+    
+    for (i=0; i<size && pres!=precision; i++) {
         if (str[i]!=0 || flag_print ) {
             flag_print=1;
             printf("%d",str[i]);
