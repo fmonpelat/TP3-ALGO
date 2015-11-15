@@ -5,7 +5,7 @@
 #include <math.h>
 #include <string.h>
 #include "bignum.h"
-
+#include "simplecalc.h"
 
 // Defines para supercalc
 #define MAX_STR 10
@@ -27,9 +27,9 @@ char * GetLines( void );
 status_t parseLines( char ** ,char ** , char **, opt_t * );
 char * searchEnter(char * );
 char * prependChar(const char * , char );
-status_t ValidateArguments(int ,char **,size_t *,calcMode_t *);
+status_t ValidateArguments(int ,char **,size_t *,calcMode_t * );
 void test(operation_vector_t * );
-void printArrayShort(short *str,size_t size,sign_t sign,size_t precision);
+void printArrayShort(short *,size_t ,sign_t ,size_t );
 
 /*#########################*/
 
@@ -37,16 +37,16 @@ void printArrayShort(short *str,size_t size,sign_t sign,size_t precision);
 
 int main(int argc,char *argv[])
 {
+    calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
+    /* simpleCalc */
+    int opt;
+    /* superCalc */
     operation_vector_t operaciones_vect;
-    //operation_t *operaciones=NULL; /* Creo un vector de punteros a operation_t*/
-    //size_t oper_size=0;
-    
     char *num1=NULL;
     char *num2=NULL;
     char *input=NULL;
     status_t statusLine=ok;
     operation_status_t status_cargado=OK;
-    calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
     size_t precision=DEFAULT_PRECISION;
 
 
@@ -62,13 +62,10 @@ int main(int argc,char *argv[])
     }
     
     ValidateArguments(argc,argv,&precision,&calcmode);
-
     
     if ( calcmode==SUPERCALC )
     {
-        
         /* test(&operaciones_vect); */
-        
         inicializarStructOperation(&operaciones_vect);
         
         while (statusLine!=eof)
@@ -76,18 +73,17 @@ int main(int argc,char *argv[])
             /* Agrandamos el array de operaciones si no es la primera vez */
             AddOperation(&operaciones_vect);
             
-            
-            
             input=GetLines();
             statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
             status_cargado=cargarStructNumeros(operaciones_vect.operaciones, &(operaciones_vect.oper_size), &(operaciones_vect.oper_size), num1, num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op));
             
+            /*
             printf("DEBUG numero1:");
             printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->q_digits,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
             printf("\nDEBUG numero2:");
             printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->q_digits,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
             printf("\n");
-
+            */
             
             if (status_cargado==OK)
             {
@@ -102,13 +98,11 @@ int main(int argc,char *argv[])
                                 multiplicar(&operaciones_vect, &(operaciones_vect.oper_size) );
                                 break;
                     default:
+                        fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
                         break;
                 }
                 printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
-                printf("\n");
                 operaciones_vect.oper_size++;
-                printf("DEBUG oper_size: %zu\n",operaciones_vect.oper_size);
-
             }
         
         }
@@ -128,12 +122,12 @@ int main(int argc,char *argv[])
     {
         
         // modo calculadora simple
-        // pegar el main del tp2!!!
-    }
-    
-    
-    
+        printf(MENU);
+        scanf("%d",&opt);
+        opcion(opt);
+        return 0;
 
+    }
     
     return 0;
 }
@@ -561,13 +555,18 @@ void printArrayShort(short *str,size_t size,sign_t sign,size_t precision){
     
     if (sign==NEGATIVE) printf("-");
     
-    for (i=0; i<size && pres!=precision; i++) {
+    for (i=0; i<size ; i++,pres++) {
         if (str[i]!=0 || flag_print ) {
-            flag_print=1;
-            printf("%d",str[i]);
+            if(pres!=precision)
+            {
+                flag_print=1;
+                printf("%d",str[i]);
+            }
+            else printf("\nOverflow\n");
         }
         fflush(stdout);
     }
+    printf("\n");
 }
 
 

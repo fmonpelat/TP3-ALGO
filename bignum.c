@@ -302,12 +302,12 @@ void suma( operation_vector_t *oper, size_t *size)
     if ( oper->operaciones[*size]->op1->q_digits < oper->operaciones[*size]->op2->q_digits )
     {
         oper->operaciones[*size]->rst=suma_digito_a_digito(oper->operaciones[*size]->op2->digits, oper->operaciones[*size]->op1->digits, oper->operaciones[*size]->op2->q_digits, oper->operaciones[*size]->op1->q_digits, &(oper->operaciones[*size]->q_rst) );
-        oper->operaciones[*size]->sign_rst=NEGATIVE;
+        oper->operaciones[*size]->sign_rst=POSITIVE;
     }
     else
     {
         oper->operaciones[*size]->rst=suma_digito_a_digito(oper->operaciones[*size]->op1->digits, oper->operaciones[*size]->op2->digits, oper->operaciones[*size]->op1->q_digits, oper->operaciones[*size]->op2->q_digits, &(oper->operaciones[*size]->q_rst) );
-        oper->operaciones[*size]->sign_rst=NEGATIVE;
+        oper->operaciones[*size]->sign_rst=POSITIVE;
     }
     
     
@@ -396,7 +396,11 @@ short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t ca
 
 short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
 {
-    ushort** res_matriz=NULL;int i,k,j,cont=0;int carry=0;ushort * res_aux=NULL;short * res=NULL;
+    ushort** res_matriz=NULL;
+    int i,k,j,cont=0;
+    int carry=0;
+    /*ushort * res_aux=NULL;*/
+    short * res=NULL;
     if (!(res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2))))
     {
         fprintf(stderr, "Error, could not find memory\n");

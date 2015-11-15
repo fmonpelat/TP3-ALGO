@@ -8,7 +8,7 @@
 #define __Tp3__bignum__
 
 #include <stdio.h>
-
+#include "simplecalc.h"
 
 
 typedef enum {OVERFLOWW,ISOK} result_state_t;
@@ -16,7 +16,6 @@ typedef enum {POSITIVE,NEGATIVE} sign_t;
 typedef enum {OK, ERROR, NOMEM, _EOF } operation_status_t;
 typedef unsigned short ushort;
 
-typedef enum {SUMA=1,RESTA,MULT,DIVISION,POT,FACT,COMBIN,ALEATORIO,GRAFICO,NOOPERATION} opt_t;
 
 typedef struct bignum{
     unsigned short *digits;
