@@ -171,21 +171,21 @@ void free_operation_t(operation_t ** oper,size_t size){
 
 
 
-void resta ( operation_t **oper, size_t *pos )
+void resta ( operation_vector_t *oper, size_t *pos)
 {
     size_t i,flag=0;
     
-    if ( (oper[*pos]->op1->q_digits) > (oper[*pos]->op2->q_digits) )
-        oper[*pos]->rst = resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits,&(oper[*pos]->q_rst));
+    if ( (oper->operaciones[*pos]->op1->q_digits) > (oper->operaciones[*pos]->op2->q_digits) )
+        oper->operaciones[*pos]->rst = resta_digito_a_digito(oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->q_digits,oper->operaciones[*pos]->op2->q_digits,&(oper->operaciones[*pos]->q_rst));
     
-    else if((oper[*pos]->op1->q_digits)<(oper[*pos]->op2->q_digits))
-        oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits,&(oper[*pos]->q_rst));
+    else if((oper->operaciones[*pos]->op1->q_digits)<(oper->operaciones[*pos]->op2->q_digits))
+        oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->q_digits,oper->operaciones[*pos]->op1->q_digits,&(oper->operaciones[*pos]->q_rst));
     
     else
     {
-        for(i=0;i<(oper[*pos]->op1->q_digits)-1;i++)
+        for(i=0;i<(oper->operaciones[*pos]->op1->q_digits)-1;i++)
         {
-            if((oper[*pos]->op1->digits[i])>(oper[*pos]->op2->digits[i]))
+            if((oper->operaciones[*pos]->op1->digits[i])>(oper->operaciones[*pos]->op2->digits[i]))
             {
                 flag=1;
                 break;
@@ -194,13 +194,13 @@ void resta ( operation_t **oper, size_t *pos )
         if (flag)
         {
             /*SIGNO POS*/
-            oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op1->digits,oper[*pos]->op2->digits,oper[*pos]->op1->q_digits,oper[*pos]->op2->q_digits,&(oper[*pos]->q_rst));
+            oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->q_digits,oper->operaciones[*pos]->op2->q_digits,&(oper->operaciones[*pos]->q_rst));
         }
         else
         {
-            for(i=0;i<(oper[*pos]->op1->q_digits)-1;i++)
+            for(i=0;i<(oper->operaciones[*pos]->op1->q_digits)-1;i++)
             {
-                if( (oper[*pos]->op1->digits[i]) != (oper[*pos]->op2->digits[i]))
+                if( (oper->operaciones[*pos]->op1->digits[i]) != (oper->operaciones[*pos]->op2->digits[i]))
                 {
                     flag=1;
                     break;
@@ -209,13 +209,13 @@ void resta ( operation_t **oper, size_t *pos )
             if (flag)
             {
                 /*SIGNO NEG*/
-                oper[*pos]->rst=resta_digito_a_digito(oper[*pos]->op2->digits,oper[*pos]->op1->digits,oper[*pos]->op2->q_digits,oper[*pos]->op1->q_digits,&(oper[*pos]->q_rst));
+                oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->q_digits,oper->operaciones[*pos]->op1->q_digits,&(oper->operaciones[*pos]->q_rst));
             }
             else
             {
-                oper[*pos]->rst=(short*)malloc(sizeof(short));
+                oper->operaciones[*pos]->rst=(short*)malloc(sizeof(short));
                 //esto lo veo muy hardcodeado.....
-                oper[*pos]->rst[0]=0;				/* Si llega acá el resultado es cero, corta."*/
+                oper->operaciones[*pos]->rst[0]=0;				/* Si llega acá el resultado es cero, corta."*/
             }
         }
         
@@ -223,17 +223,16 @@ void resta ( operation_t **oper, size_t *pos )
     
 }
 
-void suma( operation_t ** oper, size_t *size)
+void suma( operation_vector_t *oper, size_t *size)
 {
     
-    
-    if ( oper[*size]->op1->q_digits < oper[*size]->op2->q_digits )
+    if ( oper->operaciones[*size]->op1->q_digits < oper->operaciones[*size]->op2->q_digits )
     {
-        oper[*size]->rst=suma_digito_a_digito(oper[*size]->op2->digits, oper[*size]->op1->digits, oper[*size]->op2->q_digits, oper[*size]->op1->q_digits, &(oper[*size]->q_rst) );
+        oper->operaciones[*size]->rst=suma_digito_a_digito(oper->operaciones[*size]->op2->digits, oper->operaciones[*size]->op1->digits, oper->operaciones[*size]->op2->q_digits, oper->operaciones[*size]->op1->q_digits, &(oper->operaciones[*size]->q_rst) );
     }
     else
     {
-        oper[*size]->rst=suma_digito_a_digito(oper[*size]->op1->digits, oper[*size]->op2->digits, oper[*size]->op1->q_digits, oper[*size]->op2->q_digits, &(oper[*size]->q_rst) );
+        oper->operaciones[*size]->rst=suma_digito_a_digito(oper->operaciones[*size]->op1->digits, oper->operaciones[*size]->op2->digits, oper->operaciones[*size]->op1->q_digits, oper->operaciones[*size]->op2->q_digits, &(oper->operaciones[*size]->q_rst) );
     }
     
 }
@@ -376,9 +375,9 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
     return res;
 }
 
-void multiplicar(operation_t ** oper, size_t *size )
+void multiplicar(operation_vector_t *oper, size_t *size )
 {
-    oper[*size]->rst = multiplico(oper[*size]->op1->digits,oper[*size]->op2->digits,oper[*size]->op1->q_digits,oper[*size]->op2->q_digits,&(oper[*size]->q_rst));
+    oper->operaciones[*size]->rst = multiplico(oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->q_digits,oper->operaciones[*size]->op2->q_digits,&(oper->operaciones[*size]->q_rst));
 
 }
 

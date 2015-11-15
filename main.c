@@ -93,15 +93,14 @@ int main(int argc,char *argv[])
             {
                 switch (operaciones_vect.operaciones[operaciones_vect.oper_size]->op) {
                     case SUMA:
-                        suma(&(operaciones_vect.operaciones[operaciones_vect.oper_size]), &(operaciones_vect.oper_size) );
-                        break;
+                                suma(&operaciones_vect, &(operaciones_vect.oper_size) );
+                                break;
                     case RESTA:
-                        resta(&(operaciones_vect.operaciones[operaciones_vect.oper_size]), &(operaciones_vect.oper_size) );
-                        break;
+                                resta(&operaciones_vect, &(operaciones_vect.oper_size) );
+                                break;
                     case MULT:
-                        multiplicar(&(operaciones_vect.operaciones[operaciones_vect.oper_size]), &(operaciones_vect.oper_size) );
-                        break;
-                        
+                                multiplicar(&operaciones_vect, &(operaciones_vect.oper_size) );
+                                break;
                     default:
                         break;
                 }
@@ -434,10 +433,10 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                             {
                                 /* si llegamos hasta aca quiere decir que se ingreso algo como 001+-222 */
                                 ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
+                                ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
-                                *operation=SUMA;
+                                *operation=RESTA;
                                 return ok;
                             }
                             else if((*totalLines)[i+1]=='+')

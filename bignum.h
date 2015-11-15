@@ -49,9 +49,9 @@ void free_operation_t(operation_t ** ,size_t);
 short * resta_digito_a_digito(ushort *, ushort *,size_t ,size_t , size_t*);
 short * suma_digito_a_digito(ushort * ,ushort * , size_t , size_t ,size_t *);
 short * multiplico(ushort * , ushort *, size_t , size_t, size_t *);
-void resta(operation_t **, size_t *);
-void suma(operation_t **, size_t *);
-void multiplicar(operation_t **, size_t *);
+void resta(operation_vector_t *, size_t *);
+void suma(operation_vector_t *, size_t *);
+void multiplicar(operation_vector_t *, size_t *);
 ushort findCarry (ushort );
 
 /*bignum_t* add_bignum( const bignum_t * , const bignum_t * ) ;
