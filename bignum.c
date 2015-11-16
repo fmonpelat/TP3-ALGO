@@ -399,10 +399,9 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
 
     k=0;
     while(k<cant2)
-    {
-
-        for(j=cant2-1;j>=0;j--)
-        {
+    {    
+	for(j=cant2-1;j>=0;j--)
+    	{
             carry=0;
             for(i=cant1-1;i>=0;i--)
             {
@@ -415,6 +414,7 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
             }
             res_matriz[k][0]=carry;
             k++;
+
         }
     }
     
