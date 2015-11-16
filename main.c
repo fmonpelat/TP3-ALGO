@@ -437,7 +437,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                                 *line1=prependChar(ptr,'+');
-                                *line2=prependChar(ptr2,'-');
+                                *line2=prependChar(ptr2,'+');
                                 *operation=RESTA;
                                 return ok;
 

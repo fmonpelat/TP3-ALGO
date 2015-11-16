@@ -191,51 +191,39 @@ void resta ( operation_vector_t *oper, size_t *pos)
     }
     
     if ( (oper->operaciones[*pos]->op1->q_digits) > (oper->operaciones[*pos]->op2->q_digits) )
+    {
         oper->operaciones[*pos]->rst = resta_digito_a_digito(oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->q_digits,oper->operaciones[*pos]->op2->q_digits,&(oper->operaciones[*pos]->q_rst));
-    
+        oper->operaciones[*pos]->sign_rst=POSITIVE;
+    }
     else if((oper->operaciones[*pos]->op1->q_digits)<(oper->operaciones[*pos]->op2->q_digits))
+    {
         oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->q_digits,oper->operaciones[*pos]->op1->q_digits,&(oper->operaciones[*pos]->q_rst));
+        oper->operaciones[*pos]->sign_rst=NEGATIVE;
+    }
     
     else
     {
-        for(i=0;i<(oper->operaciones[*pos]->op1->q_digits)-1;i++)
+        for (i=0; i<oper->operaciones[*pos]->op1->q_digits; i++)
         {
-            if((oper->operaciones[*pos]->op1->digits[i])>(oper->operaciones[*pos]->op2->digits[i]))
+            if ( oper->operaciones[*pos]->op1->digits[i]<oper->operaciones[*pos]->op2->digits[i] )
             {
-                flag=1;
-                break;
-            }
-        }
-        if (flag)
-        {
-            /*SIGNO POS*/
-            oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->q_digits,oper->operaciones[*pos]->op2->q_digits,&(oper->operaciones[*pos]->q_rst));
-        }
-        else
-        {
-            for(i=0;i<(oper->operaciones[*pos]->op1->q_digits)-1;i++)
-            {
-                if( (oper->operaciones[*pos]->op1->digits[i]) != (oper->operaciones[*pos]->op2->digits[i]))
-                {
-                    flag=1;
-                    break;
-                }
-            }
-            if (flag)
-            {
-                /*SIGNO NEG*/
                 oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->q_digits,oper->operaciones[*pos]->op1->q_digits,&(oper->operaciones[*pos]->q_rst));
+
                 oper->operaciones[*pos]->sign_rst=NEGATIVE;
+                return;
             }
-            else
+            if ( oper->operaciones[*pos]->op1->digits[i]>=oper->operaciones[*pos]->op2->digits[i] )
             {
-                oper->operaciones[*pos]->rst=(short*)malloc(sizeof(short));
-                //esto lo veo muy hardcodeado.....
-                oper->operaciones[*pos]->rst[0]=0;				/* Si llega acá el resultado es cero, corta."*/
+                oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->q_digits,oper->operaciones[*pos]->op2->q_digits,&(oper->operaciones[*pos]->q_rst));
+                
+                oper->operaciones[*pos]->sign_rst=POSITIVE;
+                return;
+                
             }
         }
-        
+
     }
+    
     
 }
 
@@ -441,8 +429,9 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
     for(k=cant2-1;k>=0;k--)   // Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.
     {
         res=suma_digito_a_digito(res,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
+        
         cont++;
-    }
+        }
     *q_resultado=cant1+cant2+cont;
     
     /* liberamos la memoria pedida*/
