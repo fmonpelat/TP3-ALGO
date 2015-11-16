@@ -246,56 +246,45 @@ void suma( operation_vector_t *oper, size_t *size)
 
     if(oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==POSITIVE)
     {
-        if ( (oper->operaciones[*size]->op1->q_digits) > (oper->operaciones[*size]->op2->q_digits) )
+        
+        if( oper->operaciones[*size]->op1->q_digits > oper->operaciones[*size]->op2->q_digits )
         {
-            oper->operaciones[*size]->rst = resta_digito_a_digito(oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->q_digits,oper->operaciones[*size]->op2->q_digits,&(oper->operaciones[*size]->q_rst));
+            oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op1->digits,
+                                                                oper->operaciones[*size]->op2->digits,
+                                                                oper->operaciones[*size]->op1->q_digits,
+                                                                oper->operaciones[*size]->op2->q_digits,
+                                                                &(oper->operaciones[*size]->q_rst));
             oper->operaciones[*size]->sign_rst=NEGATIVE;
+            return;
         }
-        else if((oper->operaciones[*size]->op1->q_digits)<(oper->operaciones[*size]->op2->q_digits))
+        else if(oper->operaciones[*size]->op1->q_digits == oper->operaciones[*size]->op2->q_digits)
         {
-            oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->q_digits,oper->operaciones[*size]->op1->q_digits,&(oper->operaciones[*size]->q_rst));
-            oper->operaciones[*size]->sign_rst=POSITIVE;
-        }
-        else
-        {
-            for(i=0;i<(oper->operaciones[*size]->op1->q_digits)-1;i++)
+            for (i=0; i<oper->operaciones[*size]->op1->q_digits; i++)
             {
-                if((oper->operaciones[*size]->op1->digits[i])>(oper->operaciones[*size]->op2->digits[i]))
+                if ( oper->operaciones[*size]->op1->digits[i]<oper->operaciones[*size]->op2->digits[i] )
                 {
-                    flag=1;
-                    break;
+                    oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op2->digits,
+                                                                        oper->operaciones[*size]->op1->digits,
+                                                                        oper->operaciones[*size]->op2->q_digits,
+                                                                        oper->operaciones[*size]->op1->q_digits,
+                                                                        &(oper->operaciones[*size]->q_rst));
+                    oper->operaciones[*size]->sign_rst=POSITIVE;
+                    return;
                 }
-            }
-            if (flag)
-            {
-                /*SIGNO POS*/
-                oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->q_digits,oper->operaciones[*size]->op2->q_digits,&(oper->operaciones[*size]->q_rst));
-            }
-            else
-            {
-                for(i=0;i<(oper->operaciones[*size]->op1->q_digits)-1;i++)
+                if ( oper->operaciones[*size]->op1->digits[i]>=oper->operaciones[*size]->op2->digits[i] )
                 {
-                    if( (oper->operaciones[*size]->op1->digits[i]) != (oper->operaciones[*size]->op2->digits[i]))
-                    {
-                        flag=1;
-                        break;
-                    }
-                }
-                if (flag)
-                {
-                    /*SIGNO NEG*/
-                    oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op2->digits,oper->operaciones[*size]->op1->digits,oper->operaciones[*size]->op2->q_digits,oper->operaciones[*size]->op1->q_digits,&(oper->operaciones[*size]->q_rst));
+                    oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op1->digits,
+                                                                        oper->operaciones[*size]->op2->digits,
+                                                                        oper->operaciones[*size]->op1->q_digits,
+                                                                        oper->operaciones[*size]->op2->q_digits,
+                                                                        &(oper->operaciones[*size]->q_rst));
                     oper->operaciones[*size]->sign_rst=NEGATIVE;
-                }
-                else
-                {
-                    oper->operaciones[*size]->rst=(short*)malloc(sizeof(short));
-                    //esto lo veo muy hardcodeado.....
-                    oper->operaciones[*size]->rst[0]=0;				/* Si llega acá el resultado es cero, corta."*/
+                    return;
+
                 }
             }
         }
-            
+        
             
     }
     
@@ -419,9 +408,11 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
         for(i=0;i<=cant1+k;i++)
             res_matriz[k][i]=0;
     }
-    
-    for(k=0;k<cant2;k++)
+
+    k=0;
+    while(k<cant2)
     {
+
         for(j=cant2-1;j>=0;j--)
         {
             carry=0;
@@ -435,6 +426,7 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
                 }
             }
             res_matriz[k][0]=carry;
+            k++;
         }
     }
     
@@ -451,8 +443,14 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
         res=suma_digito_a_digito(res,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
         cont++;
     }
-    
     *q_resultado=cant1+cant2+cont;
+    
+    /* liberamos la memoria pedida*/
+    for (i=0; i<cant2; i++) {
+        free(res_matriz[i]);
+    }
+    free(res_matriz);
+    
     return res;
 }
 

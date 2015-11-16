@@ -551,20 +551,25 @@ void printArrayShort(short *str,size_t size,sign_t sign,size_t precision){
     
     size_t i=0;
     int flag_print=0;
-    size_t pres=0;
+
     
     if (sign==NEGATIVE) printf("-");
     
-    for (i=0; i<size ; i++,pres++) {
-        if (str[i]!=0 || flag_print ) {
-            if(pres!=precision)
+    for (i=0; i<size ; i++) {
+        if( (str[i]!=0) || (flag_print) )
+        {
+            if(i!=precision)
             {
-                flag_print=1;
                 printf("%d",str[i]);
+                flag_print=1;
             }
-            else printf("\nOverflow\n");
+            else
+            {
+                printf("\nOverflow\n");
+                break;
+            }
+            fflush(stdout);
         }
-        fflush(stdout);
     }
     printf("\n");
 }
