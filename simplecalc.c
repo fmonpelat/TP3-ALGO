@@ -1,7 +1,7 @@
-//
-//  simplecalc.c
-//  Tp3
-//
+/*
+  simplecalc.c
+  Tp3
+*/
 
 
 #include "simplecalc.h"

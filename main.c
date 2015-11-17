@@ -7,15 +7,14 @@
 #include "bignum.h"
 #include "simplecalc.h"
 
-// Defines para supercalc
+/* Defines para supercalc */
 #define MAX_STR 10
 #define VALID_ARGUMENTS 2 /* argumentos de entrada por parametro 1-> nombre del programa 2-> modo del programa (simplecalc o supercalc)*/
 #define DEFAULT_PRECISION 1000
 #define INPUT_MODE_SIMPLECALC "simpleCalc"
 #define INPUT_MODE_SUPERCALC "superCalc"
 
-// typedef de supercalc
-typedef enum{ eof, ok, error, nomem, nooperation, invalidsintax} status_t;
+/* typedef de supercalc */
 typedef enum{ SIMPLECALC, SUPERCALC} calcMode_t;
 
 
@@ -24,10 +23,10 @@ typedef enum{ SIMPLECALC, SUPERCALC} calcMode_t;
 
 void paso_linea_a_struct( char *, operation_t **, int );
 char * GetLines( void );
-status_t parseLines( char ** ,char ** , char **, opt_t * );
+operation_status_t parseLines( char ** ,char ** , char **, opt_t * );
 char * searchEnter(char * );
 char * prependChar(const char * , char );
-status_t ValidateArguments(int ,char **,size_t *,calcMode_t * );
+operation_status_t ValidateArguments(int ,char **,size_t *,calcMode_t * );
 void test(operation_vector_t * );
 void printArrayShort(short *,size_t ,sign_t ,size_t );
 
@@ -45,10 +44,9 @@ int main(int argc,char *argv[])
     char *num1=NULL;
     char *num2=NULL;
     char *input=NULL;
-    status_t statusLine=ok;
-    operation_status_t status_cargado=OK;
+    operation_status_t statusLine=OK;
     size_t precision=DEFAULT_PRECISION;
-
+    operation_status_t status_cargado=OK;
 
 
     
@@ -65,17 +63,20 @@ int main(int argc,char *argv[])
     
     if ( calcmode==SUPERCALC )
     {
-        /* test(&operaciones_vect); */
+        /*test(&operaciones_vect);*/
         inicializarStructOperation(&operaciones_vect);
         
-        while (statusLine!=eof)
+        while (statusLine!=_EOF)
         {
-            /* Agrandamos el array de operaciones si no es la primera vez */
+            /* Agrandamos el array de operaciones si no es la primera vez*/
             AddOperation(&operaciones_vect);
             
             input=GetLines();
             statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
-            status_cargado=cargarStructNumeros(operaciones_vect.operaciones, &(operaciones_vect.oper_size), &(operaciones_vect.oper_size), num1, num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op));
+            if (statusLine!=_EOF) {
+                status_cargado=cargarStructNumeros(operaciones_vect.operaciones, &(operaciones_vect.oper_size), &(operaciones_vect.oper_size), num1, num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op));
+            }
+            
             
             /*
             printf("DEBUG numero1:");
@@ -107,8 +108,8 @@ int main(int argc,char *argv[])
         
         }
         
-        //liberamos memoria
-        free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size);
+        /* liberamos memoria */
+        free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         free(input);
         free(num1);
         free(num2);
@@ -121,7 +122,7 @@ int main(int argc,char *argv[])
     else if( calcmode==SIMPLECALC)
     {
         
-        // modo calculadora simple
+        /* modo calculadora simple */
         printf(MENU);
         scanf("%d",&opt);
         opcion(opt);
@@ -145,8 +146,8 @@ void test(operation_vector_t * oper_vect)
     size_t precision=DEFAULT_PRECISION;
     
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+10";
-    char num2[]="+3";
+    char num1[]="+0123456789";
+    char num2[]="+0123456789";
     opt_t operation=MULT;
     
     	
@@ -199,11 +200,20 @@ void test(operation_vector_t * oper_vect)
     */
     
     /* Prueba de Multiplicacion */
-    oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
+    /*oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
+                                                                   oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
                                                                    &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
+    */
+    oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
+                                                                oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
+                                                                oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
+                                                                oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
+                                                                oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
+                                                                 &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
+    
     printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst,oper_vect->operaciones[oper_vect->oper_size]->sign_rst,precision);
     printf("\n");
     
@@ -213,7 +223,7 @@ void test(operation_vector_t * oper_vect)
 
 
 
-status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mode)
+operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mode)
 {
     
     size_t i=0;
@@ -241,7 +251,7 @@ status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mo
             if (!*precision) *precision=DEFAULT_PRECISION;
         }
     }
-    return ok;
+    return OK;
     
 }
 
@@ -311,7 +321,7 @@ char * GetLines( void )
     
 }
 
-status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operation)
+operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operation)
 {
     
     char *ptr;
@@ -325,12 +335,12 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
         
             if (*totalLines[0]=='*')
             {
-                return invalidsintax;
+                return ERROR;
             }
             else if ( *totalLines[0]=='+')
             {
                 
-                // que pasa si no hay un - o un + en el medio?
+                /* que pasa si no hay un - o un + en el medio? */
                 for (i=1; i<strlen(*totalLines); i++)
                 {
                     if ( !(isdigit((*totalLines)[i])) )
@@ -343,7 +353,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                             *line1=ptr;
                             *line2=prependChar(ptr2, '-');
                             *operation=RESTA;
-                            return ok;
+                            return OK;
                         }
                         
                         if ((*totalLines)[i]=='+')
@@ -354,7 +364,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                             *line1=ptr;
                             *line2=prependChar(ptr2,'+');
                             *operation=SUMA;
-                            return ok;
+                            return OK;
                         }
                     }
                 }
@@ -362,7 +372,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
             }
             else if (*totalLines[0]=='-' ) {
                 
-                // que pasa si no hay un - o un + en el medio?
+                /* que pasa si no hay un - o un + en el medio? */
                 for (i=1; i<strlen(*totalLines); i++)
                 {
                     if ( !(isdigit((*totalLines)[i])) )
@@ -375,7 +385,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                             *line1=prependChar(ptr, '-');
                             *line2=prependChar(ptr2, '-');
                             *operation=RESTA;
-                            return ok;
+                            return OK;
                         }
                         
                         if ((*totalLines)[i]=='+')
@@ -385,7 +395,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                             *line1=ptr;
                             *line2=prependChar(ptr2,'+');
                             *operation=SUMA;
-                            return ok;
+                            return OK;
                         }
                         if ((*totalLines)[i]=='*')
                         {
@@ -396,7 +406,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=prependChar(ptr, '-');
                                 *line2=prependChar(ptr2, '-');
                                 *operation=MULT;
-                                return ok;
+                                return OK;
                             }
                             else
                             {
@@ -406,7 +416,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=ptr;
                                 *line2=prependChar(ptr2, '+');
                                 *operation=MULT;
-                                return ok;
+                                return OK;
                             }
                         }
                     }
@@ -429,7 +439,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
                                 *operation=SUMA;
-                                return ok;
+                                return OK;
                             }
                             else
                             {
@@ -439,7 +449,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
                                 *operation=RESTA;
-                                return ok;
+                                return OK;
 
                             }
                         }
@@ -454,7 +464,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
                                 *operation=RESTA;
-                                return ok;
+                                return OK;
                             }
                             else if((*totalLines)[i+1]=='+')
                             {
@@ -464,7 +474,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
                                 *operation=SUMA;
-                                return ok;
+                                return OK;
 
                             }
                             else
@@ -475,7 +485,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
                                 *operation=SUMA;
-                                return ok;
+                                return OK;
                             }
                         }
                         
@@ -489,7 +499,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'-');
                                 *operation=MULT;
-                                return ok;
+                                return OK;
                             }
                             else if((*totalLines)[i+1]=='+')
                             {
@@ -499,7 +509,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
                                 *operation=MULT;
-                                return ok;
+                                return OK;
                                 
                             }
                             else
@@ -510,7 +520,7 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                                 *line1=prependChar(ptr,'+');
                                 *line2=prependChar(ptr2,'+');
                                 *operation=MULT;
-                                return ok;
+                                return OK;
                             }
                         }
                     }
@@ -518,14 +528,15 @@ status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operati
                 ptr=NULL; /* Si llegamos hasta aca es porque no se ingreso una operacion */
             }
 
-        if (!ptr) return eof;
+        if (!ptr) return _EOF;
     }
-    else{
+    else
+    {
         *operation=NOOPERATION;
-        return eof;
+        return _EOF;
     }
     
-    return ok;
+    return OK;
 }
 
 
@@ -570,6 +581,9 @@ void printArrayShort(short *str,size_t size,sign_t sign,size_t precision){
             }
             fflush(stdout);
         }
+    }
+    if (!flag_print) {
+        printf("0");
     }
     printf("\n");
 }

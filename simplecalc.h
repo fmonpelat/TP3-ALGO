@@ -1,7 +1,7 @@
-//
-//  simplecalc.h
-//  Tp3
-//
+/*
+  simplecalc.h
+  Tp3
+*/
 
 
 #ifndef __Tp3__simplecalc__
