@@ -220,7 +220,7 @@ void resta ( operation_vector_t *oper, size_t *pos)
                 oper->operaciones[*pos]->sign_rst=NEGATIVE;
                 return;
             }
-            if ( oper->operaciones[*pos]->op1->digits[i]>=oper->operaciones[*pos]->op2->digits[i] )
+            if ( oper->operaciones[*pos]->op1->digits[i]>oper->operaciones[*pos]->op2->digits[i] )
             {
                 oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->q_digits,oper->operaciones[*pos]->op2->q_digits,&(oper->operaciones[*pos]->q_rst));
                 
