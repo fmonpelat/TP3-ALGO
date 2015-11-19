@@ -214,14 +214,14 @@ void resta ( operation_vector_t *oper, size_t *pos)
     {
         for (i=0; i<oper->operaciones[*pos]->op1->q_digits; i++)
         {
-            if ( oper->operaciones[*pos]->op1->digits[i]<oper->operaciones[*pos]->op2->digits[i] )
+            if ( oper->operaciones[*pos]->op1->digits[i] < oper->operaciones[*pos]->op2->digits[i] )
             {
                 oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->q_digits,oper->operaciones[*pos]->op1->q_digits,&(oper->operaciones[*pos]->q_rst));
 
                 oper->operaciones[*pos]->sign_rst=NEGATIVE;
                 return;
             }
-            if ( oper->operaciones[*pos]->op1->digits[i]>=oper->operaciones[*pos]->op2->digits[i] )
+            if ( oper->operaciones[*pos]->op1->digits[i] > oper->operaciones[*pos]->op2->digits[i] )
             {
                 oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->q_digits,oper->operaciones[*pos]->op2->q_digits,&(oper->operaciones[*pos]->q_rst));
                 
@@ -380,89 +380,11 @@ short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t ca
     return resultado;
 }
 
-/*
-ushort * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
-{
-    ushort** res_matriz=NULL;
-    int i,k,j,cont=0;
-    int carry=0;
-    ushort * res=NULL;
-    ushort *resAux=NULL;
 
-    
-    
-    if (!(res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2))))
-    {
-        fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }
-    for(k=0;k<cant2;k++)
-    {
-        if (!( res_matriz[k] = (ushort*) malloc (  sizeof(ushort)*(cant1+1+k) )) )
-        {
-            fprintf(stderr, "Error, could not find memory\n");
-            return NULL;
-        }
-    }
-    for(k=0;k<cant2;k++)
-    {
-        for(i=0;i<=cant1+k;i++)
-            res_matriz[k][i]=0;
-    }
-
-    k=0;
-    while(k<cant2)
-    {
-
-        for(j=cant2-1;j>=0;j--)
-        {
-            carry=0;
-            for(i=cant1-1;i>=0;i--)
-            {
-                res_matriz[k][i+1]=(dig2[j]*dig1[i])+carry;
-                if (res_matriz[k][i+1]>9)
-                {
-                    carry=findCarry(res_matriz[k][i+1]);
-                    res_matriz[k][i+1]=res_matriz[k][i+1]-10*carry;
-                }
-            }
-            res_matriz[k][0]=carry;
-            k++;
-        }
-    }
-    
-    if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(cant1+cant2) )   ))
-    {
-      		fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }
-    for(i=0;i<cant1+cant2;i++) /*Lleno res con ceros para poder hacer la suma
-        res[i]=0;
-    
-    for(k=cant2-1;k>=0;k--)   /* Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.
-    {
-        res=suma_digito_a_digito(res,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
-        /*memcpy(resAux, res, sizeof(ushort)*(cant1+cant2));
-        free(res);
-        res=NULL;
-        cont++;
-        }
-    *q_resultado=cant1+cant2+cont;
-    
-    /* liberamos la memoria pedida
-    for (i=0; i<cant2; i++) {
-        free(res_matriz[i]);
-    }
-    free(res_matriz);
-    
-    return res;
-}
-*/
 
 void multiplicar(operation_vector_t *oper, size_t *size )
 {
-    oper->operaciones[*size]->rst = multiplico(
-                                               oper->operaciones[*size]->op1->digits,
+    oper->operaciones[*size]->rst = multiplico(oper->operaciones[*size]->op1->digits,
                                                oper->operaciones[*size]->op2->digits,
                                                oper->operaciones[*size]->op1->q_digits,
                                                oper->operaciones[*size]->op2->q_digits,
@@ -557,9 +479,8 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
         c[k++] = (sum+carry) %10;
         carry = (sum+carry)/10;
     }
-
     c[k] = carry;
-
+    
     
     if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(k) )   ))
     {
