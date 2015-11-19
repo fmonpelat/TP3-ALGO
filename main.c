@@ -68,10 +68,10 @@ int main(int argc,char *argv[])
         
         while (statusLine!=_EOF)
         {
-            /* Agrandamos el array de operaciones si no es la primera vez*/
-            AddOperation(&operaciones_vect);
             
             input=GetLines();
+            AddOperation(&operaciones_vect);
+
             statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
             if (statusLine!=_EOF) {
                 status_cargado=cargarStructNumeros(operaciones_vect.operaciones, &(operaciones_vect.oper_size), &(operaciones_vect.oper_size), num1, num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op));
@@ -104,6 +104,7 @@ int main(int argc,char *argv[])
                 }
                 printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
                 operaciones_vect.oper_size++;
+            
             }
         
         }

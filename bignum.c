@@ -69,6 +69,7 @@ operation_status_t AddOperation(operation_vector_t *oper){
     
     oper->operaciones[oper->oper_size]->op=NOOPERATION;
     
+    
     return OK;
 }
 
@@ -238,7 +239,7 @@ void resta ( operation_vector_t *oper, size_t *pos)
 void suma( operation_vector_t *oper, size_t *size)
 {
     size_t i;
-    
+    ushort aux;
 
     if(oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==POSITIVE)
     {
@@ -274,7 +275,12 @@ void suma( operation_vector_t *oper, size_t *size)
                                                                         oper->operaciones[*size]->op1->q_digits,
                                                                         oper->operaciones[*size]->op2->q_digits,
                                                                         &(oper->operaciones[*size]->q_rst));
-                    oper->operaciones[*size]->sign_rst=NEGATIVE;
+                    for (i=0; i<oper->operaciones[*size]->q_rst; i++)
+                    {
+                        aux+=oper->operaciones[*size]->rst[i];
+                    }
+                    if (!aux) oper->operaciones[*size]->sign_rst=POSITIVE;
+                    else oper->operaciones[*size]->sign_rst=NEGATIVE;
                     return;
 
                 }
@@ -551,7 +557,7 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
         r = (sum+r)/10;
     }
     c[k] = r;
-    j=0;
+    
     
     if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(k) )   ))
     {
@@ -559,8 +565,8 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
         return NULL;
     }
 
-    for(i=k-1;i>=0;i--){
-        res[j++]=c[i];
+    for(i=k-1,j=0;i>=0;i--,j++){
+        res[j]=c[i];
     }
     
     *qrst=k;
