@@ -221,7 +221,7 @@ void resta ( operation_vector_t *oper, size_t *pos)
                 oper->operaciones[*pos]->sign_rst=NEGATIVE;
                 return;
             }
-            if ( oper->operaciones[*pos]->op1->digits[i]>oper->operaciones[*pos]->op2->digits[i] )
+            if ( oper->operaciones[*pos]->op1->digits[i]>=oper->operaciones[*pos]->op2->digits[i] )
             {
                 oper->operaciones[*pos]->rst=resta_digito_a_digito(oper->operaciones[*pos]->op1->digits,oper->operaciones[*pos]->op2->digits,oper->operaciones[*pos]->op1->q_digits,oper->operaciones[*pos]->op2->q_digits,&(oper->operaciones[*pos]->q_rst));
                 
@@ -461,7 +461,8 @@ ushort * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_
 
 void multiplicar(operation_vector_t *oper, size_t *size )
 {
-    oper->operaciones[*size]->rst = multiplico(oper->operaciones[*size]->op1->digits,
+    oper->operaciones[*size]->rst = multiplico(
+                                               oper->operaciones[*size]->op1->digits,
                                                oper->operaciones[*size]->op2->digits,
                                                oper->operaciones[*size]->op1->q_digits,
                                                oper->operaciones[*size]->op2->q_digits,
@@ -506,7 +507,7 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
     
     int lnum1,lnum2;
     int i,j,k=0,x=0,y;
-    long int r=0;
+    long int carry=0;
     long sum = 0;
     lnum1=cant1-1;
     lnum2=cant2-1;
@@ -526,13 +527,13 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
     
     for(i=lnum2;i>=0;i--)
     {
-        r=0;
+        carry=0;
         for(j=lnum1;j>=0;j--)
         {
-            temp[k++] = (num2[i]*num1[j] + r)%10;
-            r = (num2[i]*num1[j]+r)/10;
+            temp[k++] = (num2[i]*num1[j] + carry)%10;
+            carry = (num2[i]*num1[j]+carry)/10;
         }
-        temp[k++] = r;
+        temp[k++] = carry;
         x++;
         for(y = 0;y<x;y++)
         {
@@ -541,7 +542,7 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
     }
     
     k=0;
-    r=0;
+    carry=0;
     for(i=0;i<lnum1+lnum2+2;i++)
     {
         sum =0;
@@ -553,11 +554,12 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
             }
             y += j + lnum1 + 1;
         }
-        c[k++] = (sum+r) %10;
-        r = (sum+r)/10;
+        c[k++] = (sum+carry) %10;
+        carry = (sum+carry)/10;
     }
-    c[k] = r;
-    
+
+    c[k] = carry;
+
     
     if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(k) )   ))
     {
