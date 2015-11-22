@@ -74,7 +74,14 @@ int main(int argc,char *argv[])
 
             statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
             if (statusLine!=_EOF) {
-                status_cargado=cargarStructNumeros(operaciones_vect.operaciones, &(operaciones_vect.oper_size), &(operaciones_vect.oper_size), num1, num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op));
+                status_cargado=cargarStructNumeros(operaciones_vect.operaciones,
+                                                   &(operaciones_vect.oper_size),
+                                                   &(operaciones_vect.oper_size),
+                                                   num1,
+                                                   num2,
+                                                   &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op),
+                                                   precision
+                                                   );
             }
             
             
@@ -96,7 +103,7 @@ int main(int argc,char *argv[])
                                 resta(&operaciones_vect, &(operaciones_vect.oper_size) );
                                 break;
                     case MULT:
-                                multiplicar(&operaciones_vect, &(operaciones_vect.oper_size) );
+                                multiplicar(&operaciones_vect, &(operaciones_vect.oper_size),precision );
                                 break;
                     default:
                         fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
@@ -105,6 +112,10 @@ int main(int argc,char *argv[])
                 printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
                 operaciones_vect.oper_size++;
             
+            }
+            else if(status_cargado==INF)
+            {
+                printf("Inf\n");
             }
         
         }
@@ -154,7 +165,7 @@ void test(operation_vector_t * oper_vect)
     	
     inicializarStructOperation(oper_vect);
     AddOperation(oper_vect);
-    cargarStructNumeros(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) );
+    cargarStructNumeros(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision);
     
     
     /*probamos las funciones una por una */
@@ -207,7 +218,7 @@ void test(operation_vector_t * oper_vect)
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
                                                                    &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    */
+    
     oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
                                                                 oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
                                                                 oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
@@ -217,7 +228,7 @@ void test(operation_vector_t * oper_vect)
     
     printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst,oper_vect->operaciones[oper_vect->oper_size]->sign_rst,precision);
     printf("\n");
-    
+    */
 
     
 }

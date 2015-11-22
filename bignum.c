@@ -75,7 +75,7 @@ operation_status_t AddOperation(operation_vector_t *oper){
 
 
 
-operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t *operation)
+operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t *operation,size_t precision)
 {
     
     size_t size_num1=0;
@@ -134,6 +134,19 @@ operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *p
         
         /* agregamos la operacion a efectuar */
         oper[*pos]->op=*operation;
+        
+        oper[*pos]->op1->inf=NEGATIVE;
+        oper[*pos]->op2->inf=NEGATIVE;
+        
+        /* preguntamos si excedemos la precision */
+        if (oper[*pos]->op1->q_digits>precision) {
+            oper[*pos]->op1->inf=POSITIVE;
+            return INF;
+        }
+        if (oper[*pos]->op2->q_digits>precision) {
+            oper[*pos]->op2->inf=POSITIVE;
+            return INF;
+        }
 
     }
     else return _EOF;
@@ -382,14 +395,28 @@ short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t ca
 
 
 
-void multiplicar(operation_vector_t *oper, size_t *size )
+void multiplicar(operation_vector_t *oper, size_t *size,size_t precision)
 {
-    oper->operaciones[*size]->rst = multiplico(oper->operaciones[*size]->op1->digits,
+   /* oper->operaciones[*size]->rst = multiplico(oper->operaciones[*size]->op1->digits,
                                                oper->operaciones[*size]->op2->digits,
                                                oper->operaciones[*size]->op1->q_digits,
                                                oper->operaciones[*size]->op2->q_digits,
-                                               &(oper->operaciones[*size]->q_rst));
+                                               &(oper->operaciones[*size]->q_rst));*/
+
+    oper->operaciones[*size]->rst=multiplico(oper->operaciones[*size]->op1->digits,
+                                             oper->operaciones[*size]->op2->digits,
+                                             oper->operaciones[*size]->op1->q_digits,
+                                             oper->operaciones[*size]->op2->q_digits,
+                                             oper->operaciones[*size]->op1->sign,
+                                             oper->operaciones[*size]->op2->sign,
+                                             oper->operaciones[*size]->op1->inf,
+                                             oper->operaciones[*size]->op2->inf,
+                                             &(oper->operaciones[*size]->q_rst),
+                                             &(oper->operaciones[*size]->sign_rst),
+                                             &(oper->operaciones[*size]->inf_rst),
+                                             precision);
     
+    /* ya se encarga la funcion multiplico
     if (oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==NEGATIVE)
     {
         oper->operaciones[*size]->sign_rst=POSITIVE;
@@ -403,6 +430,7 @@ void multiplicar(operation_vector_t *oper, size_t *size )
         oper->operaciones[*size]->sign_rst=NEGATIVE;
     }
     else    oper->operaciones[*size]->sign_rst=POSITIVE;
+    */
 }
 
 
@@ -419,8 +447,7 @@ ushort findCarry (ushort num)
 }
 
 
-
-
+/*
 ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *qrst)
 {
     ushort *res;
@@ -482,7 +509,7 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
     c[k] = carry;
     
     
-    if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(k) )   ))
+    if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(k-1) )   ))
     {
       		fprintf(stderr, "Error, could not find memory\n");
         return NULL;
@@ -501,7 +528,81 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
     return res;
 }
 
+*/
 
+ushort* multiplico(const ushort* a, const ushort* b,size_t a_size,size_t b_size,sign_t a_sign,sign_t b_sign,sign_t a_inf,sign_t b_inf,size_t *q_res,sign_t *res_sign,sign_t *res_inf ,size_t precision)
+{
+    ushort* aux = (ushort*)malloc(sizeof(ushort)*precision);
+    //ushort *res=NULL;
+    ushort *resaux=NULL;
+    unsigned suma=0;
+    int i=0, j=0;
+    
+    for (i=0; i<precision; i++) aux[i]=0;
+    *q_res = a_size+b_size+2;
+    *res_inf = NEGATIVE;
+    
+    *res_sign = ( a_sign ^ b_sign); /*se setea el signo de la multiplicación*/
+    
+    /* Si alguno de los dos números es inf o la suma de largos excede la precisión se devuelve infinito
+     cero * infinito devuelve infinito */
+    if( a_inf==POSITIVE || b_inf==POSITIVE || (a_size + b_size - 1 > precision ))
+    {
+        *res_inf = POSITIVE;
+        return aux;
+    }
+    
+    /* si alguno de los numeros es cero, se devuelve aux (inicializado en cero)*/
+    if((a_size == 1 && a[0] == 0) || (b_size == 1 && b[0] == 0))
+        return aux;
+    
+    for( i=0; i < b_size; i++)
+    {
+        suma=0 ;
+        for( j=0; j < a_size; j++)
+        {
+            suma = a[j] * b[i] + aux[j+i] + ACARREO ;
+            /* con suma/10 se suma el acarreo de la suma anterior
+             con aux.dig[i+j] se suma el valor que tenía la cuenta en la iteración anterior.*/
+            aux[i+j] =  UNIDAD ;
+        }
+        
+        /* La sig asignación se hace SALVO en la ultima iteracion de i.
+         Se deja pendiente para cuando se salga de los dos bucles, asi se puede checkear que no se excedió de la precisión. */
+        if ( i < b_size - 1 )
+            aux[j+i] = ACARREO ;
+        /*La asignación puede ser cero, pero no importa, este digit se va a sobreescribir en la sig iteración*/
+    }
+    
+    if ( suma/10 )/*Si quedó un acarreo pendiente*/
+    {
+        if( a_size + b_size - 1 < precision )	/* Si hay lugar para agregar un numero más se agrega.*/
+            aux[ a_size + b_size - 1 ] = ACARREO ;
+        else /*Si no hay lugar se setea el flag de inf */
+            *res_inf = POSITIVE ;
+    }
+    
+    resaux=(ushort *)malloc(sizeof(ushort)*(a_size+b_size+2));
+    for (i=0; i<(a_size+b_size+2); i++) resaux[i]=0;
+    
+    for (i=0; aux[i]!=0; i++) {
+        resaux[i]=aux[i];
+    }
+    free( aux);
+    return invertir(resaux, a_size+b_size+2);
+    
+}
 
+ushort *invertir(ushort *vector, size_t size)
+{
+    size_t i;
+    for ( i=0; i < size; i++, size--)
+    {
+        int temp = vector[i];
+        vector[i] = vector[size];
+        vector[size] = temp;
+    }
+    return vector;
+}
 
 
