@@ -582,14 +582,14 @@ ushort* multiplico(const ushort* a, const ushort* b,size_t a_size,size_t b_size,
             *res_inf = POSITIVE ;
     }
     
-    resaux=(ushort *)malloc(sizeof(ushort)*(a_size+b_size+2));
+    resaux=(ushort *)malloc( sizeof(ushort)*(a_size+b_size+2) );
     for (i=0; i<(a_size+b_size+2); i++) resaux[i]=0;
     
-    for (i=0; aux[i]!=0; i++) {
+    for (i=0; i<a_size+b_size+2; i++) {
         resaux[i]=aux[i];
     }
-    free( aux);
-    return invertir(resaux, a_size+b_size+2);
+    free(aux);
+    return invertir(resaux, a_size+b_size+2-1);
     
 }
 

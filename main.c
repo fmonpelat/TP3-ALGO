@@ -392,12 +392,25 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
                         
                         if ((*totalLines)[i]=='-')
                         {
+                            if ((*totalLines)[i+1]=='-')
+                            {
                             ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
                             ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
                             *line1=prependChar(ptr, '-');
-                            *line2=prependChar(ptr2, '-');
-                            *operation=RESTA;
+                            *line2=prependChar(ptr2, '+');
+                            *operation=SUMA;
                             return OK;
+                            }
+                            else
+                            {
+                                ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
+                                ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
+                                *line1=prependChar(ptr, '-');
+                                *line2=prependChar(ptr2, '-');
+                                *operation=RESTA;
+                                return OK;
+                            }
+                                
                         }
                         
                         if ((*totalLines)[i]=='+')
