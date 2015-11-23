@@ -53,20 +53,17 @@ void free_operation_t(operation_t ** oper,size_t size,operation_status_t status)
 
 short * resta_digito_a_digito(ushort *, ushort *,size_t ,size_t , size_t*);
 ushort * suma_digito_a_digito(ushort * ,ushort * , size_t , size_t ,size_t *);
-/*ushort * multiplico(ushort * , ushort *, size_t , size_t, size_t *);*/
 void resta(operation_vector_t *, size_t *);
 void suma(operation_vector_t *, size_t *);
-void multiplicar(operation_vector_t *, size_t *,size_t);
-ushort* multiplico(const ushort* , const ushort* ,size_t a_size,size_t b_size,sign_t a_sign,sign_t b_sign,sign_t a_inf,sign_t b_inf,size_t *q_res,sign_t *res_sign,sign_t *res_inf ,size_t precision);
 ushort findCarry (ushort );
-//ushort * multiplico(ushort * ,ushort * ,size_t ,size_t ,size_t *);
 ushort *invertir(ushort *vector, size_t size);
 
 
-/*bignum_t* add_bignum( const bignum_t * , const bignum_t * ) ;
-bignum_t* substract_bignum( const bignum_t * , const bignum_t * ) ;
-bignum_t* multiply_bignum( const bignum_t * , const bignum_t * ) ;
-*/
+void multiplicar(operation_vector_t *, size_t *,size_t);
+ushort* multiplico(const ushort* , const ushort* ,size_t a_size,size_t b_size,sign_t a_sign,sign_t b_sign,sign_t a_inf,sign_t b_inf,size_t *q_res,sign_t *res_sign,sign_t *res_inf ,size_t precision);
+/*ushort * multiplico(ushort * , ushort *, size_t , size_t, size_t *);*/
+
+
 
 
 #endif /* defined(__Tp3__bignum__) */
