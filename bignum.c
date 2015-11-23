@@ -425,20 +425,6 @@ void multiplicar(operation_vector_t *oper, size_t *size)
                                                oper->operaciones[*size]->op1->q_digits,
                                                oper->operaciones[*size]->op2->q_digits,
                                                &(oper->operaciones[*size]->q_rst));
-
-   /* oper->operaciones[*size]->rst=multiplico(oper->operaciones[*size]->op1->digits,
-                                             oper->operaciones[*size]->op2->digits,
-                                             oper->operaciones[*size]->op1->q_digits,
-                                             oper->operaciones[*size]->op2->q_digits,
-                                             oper->operaciones[*size]->op1->sign,
-                                             oper->operaciones[*size]->op2->sign,
-                                             oper->operaciones[*size]->op1->inf,
-                                             oper->operaciones[*size]->op2->inf,
-                                             &(oper->operaciones[*size]->q_rst),
-                                             &(oper->operaciones[*size]->sign_rst),
-                                             &(oper->operaciones[*size]->inf_rst),
-                                             precision);*/
-    
   
     if (oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==NEGATIVE)
     {
@@ -470,94 +456,11 @@ ushort findCarry (ushort num)
 }
 
 
-/*
-ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *qrst)
-{
-    ushort *res;
-    ushort *c;
-    ushort *temp;
-    
-    int lnum1,lnum2;
-    int i,j,k=0,x=0,y;
-    long int carry=0;
-    long sum = 0;
-    lnum1=cant1-1;
-    lnum2=cant2-1;
-    
-    if (!  ( c = (ushort*) malloc (  sizeof(ushort)*(cant1+cant2) )   ))
-    {
-      		fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }
-    if (!  ( temp = (ushort*) malloc (  sizeof(ushort)*(cant1+cant2) )   ))
-    {
-      		fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }
-
-
-    
-    for(i=lnum2;i>=0;i--)
-    {
-        carry=0;
-        for(j=lnum1;j>=0;j--)
-        {
-            temp[k++] = (num2[i]*num1[j] + carry)%10;
-            carry = (num2[i]*num1[j]+carry)/10;
-        }
-        temp[k++] = carry;
-        x++;
-        for(y = 0;y<x;y++)
-        {
-            temp[k++] = 0;
-        }
-    }
-    
-    k=0;
-    carry=0;
-    for(i=0;i<lnum1+lnum2+2;i++)
-    {
-        sum =0;
-        y=0;
-        for(j=1;j<=lnum2+1;j++)
-        {
-            if(i <= lnum1+j){
-                sum = sum + temp[y+i];
-            }
-            y += j + lnum1 + 1;
-        }
-        c[k++] = (sum+carry) %10;
-        carry = (sum+carry)/10;
-    }
-    c[k] = carry;
-    
-    
-    if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(k-1) )   ))
-    {
-      		fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }
-
-    for(i=k-1,j=0;i>=0;i--,j++){
-        res[j]=c[i];
-    }
-    
-    *qrst=k;
-    free(c);
-    c=NULL;
-    free(temp);
-    temp=NULL;
-    
-    return res;
-}
-
-*/
 short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
 {
     ushort** res_matriz=NULL;
     int i,k,j,cont=0;
     int carry=0;
-    /*ushort * res_aux=NULL;*/
     short * resAux=NULL;	
     short * res=NULL;
     if (!(res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2))))
@@ -603,12 +506,7 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
         }
     }
     
-   /* if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(cant1+cant2) )   ))
-    {
-      		fprintf(stderr, "Error, could not find memory\n");
-        return NULL;
-    }*/
-    	if (!  ( resAux = (ushort*) malloc (  sizeof(ushort)*(cant1+2*cant2) )   ))
+      	if (!  ( resAux = (ushort*) malloc (  sizeof(ushort)*(cant1+2*cant2) )   ))
     {
       		fprintf(stderr, "Error, could not find memory\n");
         return NULL;
@@ -618,14 +516,9 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
     
     for(k=cant2-1;k>=0;k--)   // Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.
     {
-	//for(i=0;i<cant1+cant2;i++)
-
 	res=suma_digito_a_digito(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
 	
-	++cont;
-	//free(resAux);
-	//resAux=(short*)realloc(res,sizeof(short)*(cant1+cant2+cont));        
-		
+	++cont;		
 	for(i=0;i<cant1+cant2+cont;i++)
 	{
 		resAux[i]=res[i];
@@ -636,93 +529,7 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
     *q_resultado=cant1+cant2+cont;
     
 
-	/*for(k=0;k<cant2;k++)
-	{
-		for(i=0;i<cant1+1+k;i++)
-		{printf("%d",res_matriz[k][i]);}
-		putchar('\n');
-	}*/
-    /* liberamos la memoria pedida*/
-   /* for (i=0; i<cant2; i++) {
-        free(res_matriz[i]);
-    }
-    free(res_matriz);*/
-    
+
     return resAux;
 }
-/*ushort* multiplico(const ushort* a, const ushort* b,size_t a_size,size_t b_size,sign_t a_sign,sign_t b_sign,sign_t a_inf,sign_t b_inf,size_t *q_res,sign_t *res_sign,sign_t *res_inf ,size_t precision)
-{
-    ushort* aux = (ushort*)malloc(sizeof(ushort)*precision);
-    //ushort *res=NULL;
-    ushort *resaux=NULL;
-    unsigned suma=0;
-    int i=0, j=0;
-    
-    for (i=0; i<precision; i++) aux[i]=0;
-    *q_res = a_size+b_size+2;
-    *res_inf = NEGATIVE;
-    
-    *res_sign = ( a_sign ^ b_sign); /*se setea el signo de la multiplicación*/
-    
-    /* Si alguno de los dos números es inf o la suma de largos excede la precisión se devuelve infinito
-     cero * infinito devuelve infinito */
-/*    if( a_inf==POSITIVE || b_inf==POSITIVE || (a_size + b_size - 1 > precision ))
-    {
-        *res_inf = POSITIVE;
-        return aux;
-    }
-    
-    /* si alguno de los numeros es cero, se devuelve aux (inicializado en cero)*/
-/*    if((a_size == 1 && a[0] == 0) || (b_size == 1 && b[0] == 0))
-        return aux;
-    
-    for( i=0; i < b_size; i++)
-    {
-        suma=0 ;
-        for( j=0; j < a_size; j++)
-        {
-            suma = a[j] * b[i] + aux[j+i] + ACARREO ;
-            /* con suma/10 se suma el acarreo de la suma anterior
-             con aux.dig[i+j] se suma el valor que tenía la cuenta en la iteración anterior.*/
-/*            aux[i+j] =  UNIDAD ;
-        }
-        
-        /* La sig asignación se hace SALVO en la ultima iteracion de i.
-         Se deja pendiente para cuando se salga de los dos bucles, asi se puede checkear que no se excedió de la precisión. */
-/*        if ( i < b_size - 1 )
-            aux[j+i] = ACARREO ;
-        /*La asignación puede ser cero, pero no importa, este digit se va a sobreescribir en la sig iteración*/
-/*    }
-    
-    if ( suma/10 )/*Si quedó un acarreo pendiente*/
- /*   {
-        if( a_size + b_size - 1 < precision )	/* Si hay lugar para agregar un numero más se agrega.*/
-  /*          aux[ a_size + b_size - 1 ] = ACARREO ;
-        else /*Si no hay lugar se setea el flag de inf */
-   /*         *res_inf = POSITIVE ;
-    }
-    
-    resaux=(ushort *)malloc( sizeof(ushort)*(a_size+b_size+2) );
-    for (i=0; i<(a_size+b_size+2); i++) resaux[i]=0;
-    
-    for (i=0; i<a_size+b_size+2; i++) {
-        resaux[i]=aux[i];
-    }
-    free(aux);
-    return invertir(resaux, a_size+b_size+2-1);
-    
-}
 
-ushort *invertir(ushort *vector, size_t size)
-{
-    size_t i;
-    for ( i=0; i < size; i++, size--)
-    {
-        int temp = vector[i];
-        vector[i] = vector[size];
-        vector[size] = temp;
-    }
-    return vector;
-}
-
-*/
