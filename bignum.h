@@ -59,9 +59,9 @@ ushort findCarry (ushort );
 ushort *invertir(ushort *vector, size_t size);
 
 
-void multiplicar(operation_vector_t *, size_t *,size_t);
-ushort* multiplico(const ushort* , const ushort* ,size_t a_size,size_t b_size,sign_t a_sign,sign_t b_sign,sign_t a_inf,sign_t b_inf,size_t *q_res,sign_t *res_sign,sign_t *res_inf ,size_t precision);
-/*ushort * multiplico(ushort * , ushort *, size_t , size_t, size_t *);*/
+void multiplicar(operation_vector_t *, size_t *);
+/*ushort* multiplico(const ushort* , const ushort* ,size_t a_size,size_t b_size,sign_t a_sign,sign_t b_sign,sign_t a_inf,sign_t b_inf,size_t *q_res,sign_t *res_sign,sign_t *res_inf ,size_t precision);*/
+short * multiplico(ushort * , ushort *, size_t , size_t, size_t *);
 
 
 

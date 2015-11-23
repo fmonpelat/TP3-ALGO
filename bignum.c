@@ -418,15 +418,15 @@ short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t ca
 
 
 
-void multiplicar(operation_vector_t *oper, size_t *size,size_t precision)
+void multiplicar(operation_vector_t *oper, size_t *size)
 {
-   /* oper->operaciones[*size]->rst = multiplico(oper->operaciones[*size]->op1->digits,
+    oper->operaciones[*size]->rst = multiplico(oper->operaciones[*size]->op1->digits,
                                                oper->operaciones[*size]->op2->digits,
                                                oper->operaciones[*size]->op1->q_digits,
                                                oper->operaciones[*size]->op2->q_digits,
-                                               &(oper->operaciones[*size]->q_rst));*/
+                                               &(oper->operaciones[*size]->q_rst));
 
-    oper->operaciones[*size]->rst=multiplico(oper->operaciones[*size]->op1->digits,
+   /* oper->operaciones[*size]->rst=multiplico(oper->operaciones[*size]->op1->digits,
                                              oper->operaciones[*size]->op2->digits,
                                              oper->operaciones[*size]->op1->q_digits,
                                              oper->operaciones[*size]->op2->q_digits,
@@ -437,9 +437,9 @@ void multiplicar(operation_vector_t *oper, size_t *size,size_t precision)
                                              &(oper->operaciones[*size]->q_rst),
                                              &(oper->operaciones[*size]->sign_rst),
                                              &(oper->operaciones[*size]->inf_rst),
-                                             precision);
+                                             precision);*/
     
-    /* ya se encarga la funcion multiplico
+  
     if (oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==NEGATIVE)
     {
         oper->operaciones[*size]->sign_rst=POSITIVE;
@@ -453,7 +453,7 @@ void multiplicar(operation_vector_t *oper, size_t *size,size_t precision)
         oper->operaciones[*size]->sign_rst=NEGATIVE;
     }
     else    oper->operaciones[*size]->sign_rst=POSITIVE;
-    */
+  
 }
 
 
@@ -552,8 +552,105 @@ ushort * multiplico(ushort *num1,ushort *num2,size_t cant1,size_t cant2,size_t *
 }
 
 */
+short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
+{
+    ushort** res_matriz=NULL;
+    int i,k,j,cont=0;
+    int carry=0;
+    /*ushort * res_aux=NULL;*/
+    short * resAux=NULL;	
+    short * res=NULL;
+    if (!(res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2))))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+    for(k=0;k<cant2;k++)
+    {
+        if (!( res_matriz[k] = (ushort*) malloc (  sizeof(ushort)*(cant1+1+k) )) )
+        {
+            fprintf(stderr, "Error, could not find memory\n");
+            return NULL;
+        }
+    }
+    for(k=0;k<cant2;k++)
+    {
+        for(i=0;i<=cant1+k;i++)
+            res_matriz[k][i]=0;
+    }
 
-ushort* multiplico(const ushort* a, const ushort* b,size_t a_size,size_t b_size,sign_t a_sign,sign_t b_sign,sign_t a_inf,sign_t b_inf,size_t *q_res,sign_t *res_sign,sign_t *res_inf ,size_t precision)
+    k=0;
+    while(k<cant2)
+    {
+
+        for(j=cant2-1;j>=0;j--)
+        {
+            carry=0;
+            for(i=cant1-1;i>=0;i--)
+            {
+                res_matriz[k][i+1]=(dig2[j]*dig1[i])+carry;
+		if (res_matriz[k][i+1]<=9) carry=0;
+		else                
+		if (res_matriz[k][i+1]>9)
+                {
+                    carry=findCarry(res_matriz[k][i+1]);
+                    res_matriz[k][i+1]=res_matriz[k][i+1]-10*carry;
+		
+                }
+            }
+            res_matriz[k][0]=carry;
+            k++;
+        }
+    }
+    
+   /* if (!  ( res = (ushort*) malloc (  sizeof(ushort)*(cant1+cant2) )   ))
+    {
+      		fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }*/
+    	if (!  ( resAux = (ushort*) malloc (  sizeof(ushort)*(cant1+2*cant2) )   ))
+    {
+      		fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }	
+    for(i=0;i<cant1+cant2;i++) //Lleno res con ceros para poder hacer la suma
+        resAux[i]=0;
+    
+    for(k=cant2-1;k>=0;k--)   // Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.
+    {
+	//for(i=0;i<cant1+cant2;i++)
+
+	res=suma_digito_a_digito(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
+	
+	++cont;
+	//free(resAux);
+	//resAux=(short*)realloc(res,sizeof(short)*(cant1+cant2+cont));        
+		
+	for(i=0;i<cant1+cant2+cont;i++)
+	{
+		resAux[i]=res[i];
+	}
+	free(res);
+	res=NULL;
+    }
+    *q_resultado=cant1+cant2+cont;
+    
+
+	/*for(k=0;k<cant2;k++)
+	{
+		for(i=0;i<cant1+1+k;i++)
+		{printf("%d",res_matriz[k][i]);}
+		putchar('\n');
+	}*/
+    /* liberamos la memoria pedida*/
+   /* for (i=0; i<cant2; i++) {
+        free(res_matriz[i]);
+    }
+    free(res_matriz);*/
+    
+    return resAux;
+}
+/*ushort* multiplico(const ushort* a, const ushort* b,size_t a_size,size_t b_size,sign_t a_sign,sign_t b_sign,sign_t a_inf,sign_t b_inf,size_t *q_res,sign_t *res_sign,sign_t *res_inf ,size_t precision)
 {
     ushort* aux = (ushort*)malloc(sizeof(ushort)*precision);
     //ushort *res=NULL;
@@ -569,14 +666,14 @@ ushort* multiplico(const ushort* a, const ushort* b,size_t a_size,size_t b_size,
     
     /* Si alguno de los dos números es inf o la suma de largos excede la precisión se devuelve infinito
      cero * infinito devuelve infinito */
-    if( a_inf==POSITIVE || b_inf==POSITIVE || (a_size + b_size - 1 > precision ))
+/*    if( a_inf==POSITIVE || b_inf==POSITIVE || (a_size + b_size - 1 > precision ))
     {
         *res_inf = POSITIVE;
         return aux;
     }
     
     /* si alguno de los numeros es cero, se devuelve aux (inicializado en cero)*/
-    if((a_size == 1 && a[0] == 0) || (b_size == 1 && b[0] == 0))
+/*    if((a_size == 1 && a[0] == 0) || (b_size == 1 && b[0] == 0))
         return aux;
     
     for( i=0; i < b_size; i++)
@@ -587,22 +684,22 @@ ushort* multiplico(const ushort* a, const ushort* b,size_t a_size,size_t b_size,
             suma = a[j] * b[i] + aux[j+i] + ACARREO ;
             /* con suma/10 se suma el acarreo de la suma anterior
              con aux.dig[i+j] se suma el valor que tenía la cuenta en la iteración anterior.*/
-            aux[i+j] =  UNIDAD ;
+/*            aux[i+j] =  UNIDAD ;
         }
         
         /* La sig asignación se hace SALVO en la ultima iteracion de i.
          Se deja pendiente para cuando se salga de los dos bucles, asi se puede checkear que no se excedió de la precisión. */
-        if ( i < b_size - 1 )
+/*        if ( i < b_size - 1 )
             aux[j+i] = ACARREO ;
         /*La asignación puede ser cero, pero no importa, este digit se va a sobreescribir en la sig iteración*/
-    }
+/*    }
     
     if ( suma/10 )/*Si quedó un acarreo pendiente*/
-    {
+ /*   {
         if( a_size + b_size - 1 < precision )	/* Si hay lugar para agregar un numero más se agrega.*/
-            aux[ a_size + b_size - 1 ] = ACARREO ;
+  /*          aux[ a_size + b_size - 1 ] = ACARREO ;
         else /*Si no hay lugar se setea el flag de inf */
-            *res_inf = POSITIVE ;
+   /*         *res_inf = POSITIVE ;
     }
     
     resaux=(ushort *)malloc( sizeof(ushort)*(a_size+b_size+2) );
@@ -628,4 +725,4 @@ ushort *invertir(ushort *vector, size_t size)
     return vector;
 }
 
-
+*/

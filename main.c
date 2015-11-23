@@ -103,7 +103,7 @@ int main(int argc,char *argv[])
                                 resta(&operaciones_vect, &(operaciones_vect.oper_size) );
                                 break;
                     case MULT:
-                                multiplicar(&operaciones_vect, &(operaciones_vect.oper_size),precision );
+                                multiplicar(&operaciones_vect, &(operaciones_vect.oper_size));
                                 break;
                     default:
                         fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
