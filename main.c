@@ -112,6 +112,12 @@ int main(int argc,char *argv[])
                 printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
                 operaciones_vect.oper_size++;
             
+                free(input);
+                free(num1);
+                free(num2);
+                input=NULL;
+                num1=NULL;
+                num2=NULL;
             }
             else if(status_cargado==INF)
             {
@@ -122,12 +128,7 @@ int main(int argc,char *argv[])
         
         /* liberamos memoria */
         free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
-        free(input);
-        free(num1);
-        free(num2);
-        input=NULL;
-        num1=NULL;
-        num2=NULL;
+
 
         
     }

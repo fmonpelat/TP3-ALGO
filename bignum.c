@@ -172,11 +172,10 @@ void free_operation_t(operation_t ** oper,size_t size,operation_status_t status)
         oper[i]->op1=NULL;
         free( oper[i]->op2);
         oper[i]->op2=NULL;
-        if(status==OK)
-        {
-            free( oper[i]->rst);
-            oper[i]->rst=NULL;
-        }
+        
+        free( oper[i]->rst);
+        oper[i]->rst=NULL;
+        
     }
    
     
