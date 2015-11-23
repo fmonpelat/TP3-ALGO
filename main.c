@@ -28,7 +28,7 @@ char * searchEnter(char * );
 char * prependChar(const char * , char );
 operation_status_t ValidateArguments(int ,char **,size_t *,calcMode_t * );
 void test(operation_vector_t * );
-void printArrayShort(short *,size_t ,sign_t ,size_t );
+void printArrayShort(ushort *,size_t ,sign_t ,size_t );
 
 /*#########################*/
 
@@ -46,7 +46,7 @@ int main(int argc,char *argv[])
     char *input=NULL;
     operation_status_t statusLine=OK;
     size_t precision=DEFAULT_PRECISION;
-    operation_status_t status_cargado=OK;
+    operation_status_t status_cargado=ERROR;
 
 
     
@@ -83,7 +83,7 @@ int main(int argc,char *argv[])
                                                    precision
                                                    );
             }
-            
+            else status_cargado=ERROR;
             
             /*
             printf("DEBUG numero1:");
@@ -442,8 +442,10 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
                             {
                                 ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"*"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr, '-');
-                                *line2=prependChar(ptr2, '-');
+                                /*line1=prependChar(ptr, '-');
+                                *line2=prependChar(ptr2, '-');*/
+                                *line1=ptr;
+                                *line2=ptr2;
                                 *operation=MULT;
                                 return OK;
                             }
@@ -597,7 +599,7 @@ char * prependChar(const char * str, char c)
     return string;
 }
 
-void printArrayShort(short *str,size_t size,sign_t sign,size_t precision){
+void printArrayShort(ushort *str,size_t size,sign_t sign,size_t precision){
     
     size_t i=0;
     int flag_print=0;

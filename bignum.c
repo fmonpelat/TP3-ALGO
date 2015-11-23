@@ -252,7 +252,7 @@ void resta ( operation_vector_t *oper, size_t *pos)
 void suma( operation_vector_t *oper, size_t *size)
 {
     size_t i;
-    ushort aux;
+    ushort aux=0;
 
     if(oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==POSITIVE)
     {
@@ -317,7 +317,12 @@ void suma( operation_vector_t *oper, size_t *size)
         }
         else
         {
-            oper->operaciones[*size]->rst=suma_digito_a_digito(oper->operaciones[*size]->op2->digits, oper->operaciones[*size]->op1->digits, oper->operaciones[*size]->op2->q_digits, oper->operaciones[*size]->op1->q_digits, &(oper->operaciones[*size]->q_rst) );
+            oper->operaciones[*size]->rst=suma_digito_a_digito(
+                                                               oper->operaciones[*size]->op2->digits,
+                                                               oper->operaciones[*size]->op1->digits,
+                                                               oper->operaciones[*size]->op2->q_digits,
+                                                               oper->operaciones[*size]->op1->q_digits,
+                                                               &(oper->operaciones[*size]->q_rst) );
             if (oper->operaciones[*size]->op1->sign == NEGATIVE && oper->operaciones[*size]->op2->sign == NEGATIVE)
             {
                 oper->operaciones[*size]->sign_rst=NEGATIVE;
@@ -327,8 +332,13 @@ void suma( operation_vector_t *oper, size_t *size)
     }
     else
     {
-        oper->operaciones[*size]->rst=suma_digito_a_digito(oper->operaciones[*size]->op1->digits, oper->operaciones[*size]->op2->digits, oper->operaciones[*size]->op1->q_digits, oper->operaciones[*size]->op2->q_digits, &(oper->operaciones[*size]->q_rst) );
-        oper->operaciones[*size]->op1->q_digits, &(oper->operaciones[*size]->q_rst);
+        oper->operaciones[*size]->rst=suma_digito_a_digito(
+                                                           oper->operaciones[*size]->op1->digits,
+                                                           oper->operaciones[*size]->op2->digits,
+                                                           oper->operaciones[*size]->op1->q_digits,
+                                                           oper->operaciones[*size]->op2->q_digits,
+                                                           &(oper->operaciones[*size]->q_rst) );
+        
         
         if (oper->operaciones[*size]->op1->sign == NEGATIVE && oper->operaciones[*size]->op2->sign == NEGATIVE)
         {
@@ -382,15 +392,15 @@ ushort * suma_digito_a_digito (ushort *dig1,ushort *dig2, size_t cant1, size_t c
     return resultado;
 }
 
-short * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2, size_t *q_resultado)
+ushort * resta_digito_a_digito (ushort *dig1, ushort *dig2,size_t cant1,size_t cant2, size_t *q_resultado)
 {
-    short *resultado=NULL;
+    ushort *resultado=NULL;
     int carry=0,dif;
     int i=0;
     
     dif=cant1-cant2;
     
-    if (!(resultado = (short*)malloc(sizeof(short)*(cant1))))
+    if (!(resultado = (ushort*)malloc(sizeof(ushort)*(cant1))))
     {
         fprintf(stderr, "Error, could not find memory\n");
         return NULL;
@@ -425,7 +435,7 @@ void multiplicar(operation_vector_t *oper, size_t *size)
                                                oper->operaciones[*size]->op1->q_digits,
                                                oper->operaciones[*size]->op2->q_digits,
                                                &(oper->operaciones[*size]->q_rst));
-  
+   
     if (oper->operaciones[*size]->op1->sign==NEGATIVE && oper->operaciones[*size]->op2->sign==NEGATIVE)
     {
         oper->operaciones[*size]->sign_rst=POSITIVE;
@@ -439,6 +449,8 @@ void multiplicar(operation_vector_t *oper, size_t *size)
         oper->operaciones[*size]->sign_rst=NEGATIVE;
     }
     else    oper->operaciones[*size]->sign_rst=POSITIVE;
+    
+  
   
 }
 
@@ -456,13 +468,13 @@ ushort findCarry (ushort num)
 }
 
 
-short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
+ushort * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
 {
     ushort** res_matriz=NULL;
     int i,k,j,cont=0;
     int carry=0;
-    short * resAux=NULL;	
-    short * res=NULL;
+    ushort * resAux=NULL;
+    ushort * res=NULL;
     if (!(res_matriz = (ushort**)malloc(sizeof(ushort*)*(cant2))))
     {
         fprintf(stderr, "Error, could not find memory\n");
@@ -511,10 +523,10 @@ short * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_t
       		fprintf(stderr, "Error, could not find memory\n");
         return NULL;
     }	
-    for(i=0;i<cant1+cant2;i++) //Lleno res con ceros para poder hacer la suma
+    for(i=0;i<cant1+cant2;i++) /*Lleno res con ceros para poder hacer la suma*/
         resAux[i]=0;
     
-    for(k=cant2-1;k>=0;k--)   // Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.
+    for(k=cant2-1;k>=0;k--)   /*Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.*/
     {
 	res=suma_digito_a_digito(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
 	
