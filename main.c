@@ -375,7 +375,7 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
                         {
                             ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
                             ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
-                            *(searchEnter(ptr2))='\0';
+                            //*(searchEnter(ptr2))='\0';
                             *line1=ptr;
                             *line2=prependChar(ptr2,'+');
                             *operation=SUMA;

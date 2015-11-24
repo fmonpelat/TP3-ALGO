@@ -179,7 +179,7 @@ void free_operation_t(operation_t ** oper,size_t size,operation_status_t status)
     }
    
     
-    for (i=0; i<size; i++) {
+    for (i=0; i<size-1; i++) {
         free(oper[i]);
         oper[i]=NULL;
     }
