@@ -37,10 +37,10 @@ operation_status_t inicializarStructOperation(operation_vector_t * oper ){
 
 operation_status_t AddOperation(operation_vector_t *oper){
     
-    /*operation_t **ppAux=NULL;*/
+    operation_t **ppAux=NULL;
     operation_t *pAux;
 
-    /* esto quedo viejo ya que se declara estaticamente el vector en el main
+    
     if ( !(ppAux=(operation_t **)realloc(oper->operaciones,( sizeof(operation_t*) * (oper->oper_size+1)) ) )  )
     {
         fprintf(stderr, "no memory \n");
@@ -48,7 +48,7 @@ operation_status_t AddOperation(operation_vector_t *oper){
     }
     
     (oper->operaciones)=ppAux;
-    */
+    
     if (!(pAux=(operation_t *)malloc(sizeof(operation_t) )) ) {
         fprintf(stderr, "no memory \n");
         return NOMEM;
@@ -163,17 +163,16 @@ void free_operation_t(operation_t ** oper,size_t size,operation_status_t status)
     
     
 
-    for (i=0; i<size; i++) {
-            free( oper[i]->op1->digits);
-            oper[i]->op1->digits=NULL;
-            free( oper[i]->op2->digits);
-            oper[i]->op2->digits=NULL;
-    
+    for (i=0; i<size; i++)
+    {
+        free( oper[i]->op1->digits);
+        oper[i]->op1->digits=NULL;
+        free( oper[i]->op2->digits);
+        oper[i]->op2->digits=NULL;
         free( oper[i]->op1);
         oper[i]->op1=NULL;
         free( oper[i]->op2);
         oper[i]->op2=NULL;
-        
         free( oper[i]->rst);
         oper[i]->rst=NULL;
         
@@ -184,8 +183,6 @@ void free_operation_t(operation_t ** oper,size_t size,operation_status_t status)
         free(oper[i]);
         oper[i]=NULL;
     }
-    
-    *oper=NULL;
 
     
     
