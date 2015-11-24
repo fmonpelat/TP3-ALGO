@@ -29,10 +29,10 @@
 
 operation_status_t inicializarStructOperation(operation_vector_t * oper ){
     
-    oper->operaciones=NULL;
-    oper->oper_size=0;
     operation_t **ppAux=NULL;
     operation_t *pAux;
+    oper->operaciones=NULL;
+    oper->oper_size=0;
     
     
     if ( !(ppAux=(operation_t **)realloc(oper->operaciones,( sizeof(operation_t*)) ) )  )
