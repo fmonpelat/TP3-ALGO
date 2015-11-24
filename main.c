@@ -39,6 +39,7 @@ int main(int argc,char *argv[])
     calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
     /* simpleCalc */
     int opt;
+    
     /* superCalc */
     operation_vector_t operaciones_vect;
     char *num1=NULL;
@@ -95,7 +96,8 @@ int main(int argc,char *argv[])
             
             if (status_cargado==OK)
             {
-                switch (operaciones_vect.operaciones[operaciones_vect.oper_size]->op) {
+                switch (operaciones_vect.operaciones[operaciones_vect.oper_size]->op)
+                {
                     case SUMA:
                                 suma(&operaciones_vect, &(operaciones_vect.oper_size) );
                                 break;
@@ -111,7 +113,8 @@ int main(int argc,char *argv[])
                 }
                 printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
                 
-            
+                operaciones_vect.oper_size++;
+                
                 free(input);
                 free(num1);
                 free(num2);
@@ -123,11 +126,11 @@ int main(int argc,char *argv[])
             {
                 printf("Inf\n");
             }
-        operaciones_vect.oper_size++;
+        
         }
+        
         free(input);
         input=NULL;
-
         /* liberamos memoria */
         free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         free(operaciones_vect.operaciones);
@@ -289,7 +292,7 @@ char * GetLines( void )
     
     /* pedimos memoria por primera vez antes de reallocar si es que necesitamos memoria.
      */
-    if (!(totalLines = (char*)malloc(sizeof(char)*init_chop)))
+    if (!(totalLines = (char*)calloc(init_chop,sizeof(char))))
     {
         fprintf(stderr, "Error, could not find memory\n");
         return NULL;
@@ -365,7 +368,7 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
                         {
                             ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
                             ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
-                            *line1=ptr;
+                            *line1=prependChar(ptr,'#');
                             *line2=prependChar(ptr2, '-');
                             *operation=RESTA;
                             return OK;
@@ -375,8 +378,8 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
                         {
                             ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
                             ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
-                            //*(searchEnter(ptr2))='\0';
-                            *line1=ptr;
+                            /**(searchEnter(ptr2))='\0';*/
+                            *line1=prependChar(ptr,'#');
                             *line2=prependChar(ptr2,'+');
                             *operation=SUMA;
                             return OK;
@@ -424,8 +427,8 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
                                 /**line1=prependChar(ptr, '-');
                                 *line2=prependChar(ptr2, '-');*/
-                                *line1=ptr;
-                                *line2=ptr2;
+                                *line1=prependChar(ptr,'#');
+                                *line2=prependChar(ptr2,'#');
                                 *operation=SUMA;
                                 return OK;
                             }
@@ -433,7 +436,7 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
                             {
                                 ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
-                                *line1=ptr;
+                                *line1=prependChar(ptr,'#');
                                 *line2=prependChar(ptr2,'+');
                                 *operation=SUMA;
                                 return OK;
@@ -447,8 +450,8 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
                                 ptr2=strtok(NULL,"*"); /* este es nuestro primer numero */
                                 /*line1=prependChar(ptr, '-');
                                 *line2=prependChar(ptr2, '-');*/
-                                *line1=ptr;
-                                *line2=ptr2;
+                                *line1=prependChar(ptr,'#');
+                                *line2=prependChar(ptr2,'#');
                                 *operation=MULT;
                                 return OK;
                             }
@@ -457,7 +460,7 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
                                 ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
                                 ptr2=strtok(NULL,"*"); /* este es nuestro primer numero */
                                 /**line1=prependChar(ptr, '-');*/
-                                *line1=ptr;
+                                *line1=prependChar(ptr,'#');
                                 *line2=prependChar(ptr2, '+');
                                 *operation=MULT;
                                 return OK;
@@ -597,8 +600,15 @@ char * searchEnter(char *str ){
 char * prependChar(const char * str, char c)
 {
     char * string = (char *)malloc( strlen(str)+2 ); /* añadimos 2 posiciones una para el caracter y otra para el \0 */
-    string[0] = c;
-    strcpy(string + 1, str);
+    if(c!='#')
+    {
+        string[0] = c;
+        strcpy(string + 1, str);
+    }
+    else
+    {
+        strcpy(string, str);
+    }
     return string;
 }
 
