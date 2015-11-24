@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-pedantic -Wall -O2
+CFLAGS=-pedantic -Wall -g
 SOURCES=main.o bignum.o simplecalc.o
 EXECUTABLE=tp3
 
