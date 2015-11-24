@@ -31,6 +31,41 @@ operation_status_t inicializarStructOperation(operation_vector_t * oper ){
     
     oper->operaciones=NULL;
     oper->oper_size=0;
+    operation_t **ppAux=NULL;
+    operation_t *pAux;
+    
+    
+    if ( !(ppAux=(operation_t **)realloc(oper->operaciones,( sizeof(operation_t*)) ) )  )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    
+    (oper->operaciones)=ppAux;
+    
+    if (!(pAux=(operation_t *)malloc(sizeof(operation_t) )) ) {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    oper->operaciones[0]=pAux;
+    
+    
+    /* pido memoria para cada bignum_t */
+    if( !(oper->operaciones[0]->op1=(bignum_t *)malloc( sizeof(bignum_t) )) )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    if( !(oper->operaciones[0]->op2=(bignum_t *)malloc( sizeof(bignum_t) )) )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    
+    oper->operaciones[0]->op=NOOPERATION;
+    oper->oper_size=0;
+
+    
     return OK;
 }
 
@@ -70,13 +105,12 @@ operation_status_t AddOperation(operation_vector_t *oper){
     
     oper->operaciones[oper->oper_size]->op=NOOPERATION;
     
-    
     return OK;
 }
 
 
 
-operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t *operation,size_t precision)
+operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t *operation,size_t precision,operation_status_t status)
 {
     
     size_t size_num1=0;
@@ -90,8 +124,7 @@ operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *p
     if ( (*pos)>(*size) ) return ERROR;
     
     
-    if ( (*operation)!=NOOPERATION )
-    {
+
         /* pido memoria para la cadena que contendra los digitos bignum_t*/
         if( !( oper[*pos]->op1->digits=(ushort *)malloc( sizeof(ushort)*(size_num1-1)) ) )
         {
@@ -149,8 +182,7 @@ operation_status_t cargarStructNumeros(operation_t **oper,size_t *size,size_t *p
             return INF;
         }
 
-    }
-    else return _EOF;
+    if(status==_EOF) return ERROR;
     
     return OK;
 

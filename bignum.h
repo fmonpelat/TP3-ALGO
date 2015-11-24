@@ -48,7 +48,7 @@ typedef struct operation_vector{
 
 operation_status_t inicializarStructOperation(operation_vector_t * );
 operation_status_t AddOperation(operation_vector_t *oper);
-operation_status_t cargarStructNumeros(operation_t **,size_t *,size_t *,char *,char *, opt_t *,size_t);
+operation_status_t cargarStructNumeros(operation_t **,size_t *,size_t *,char *,char *, opt_t *,size_t,operation_status_t);
 void free_operation_t(operation_t ** oper,size_t size,operation_status_t status);
 
 ushort * resta_digito_a_digito(ushort *, ushort *,size_t ,size_t , size_t*);

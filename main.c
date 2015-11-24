@@ -48,7 +48,7 @@ int main(int argc,char *argv[])
     operation_status_t statusLine=OK;
     size_t precision=DEFAULT_PRECISION;
     operation_status_t status_cargado=ERROR;
-
+    size_t i=0;
 
     
     if (argc<VALID_ARGUMENTS)
@@ -71,20 +71,20 @@ int main(int argc,char *argv[])
         {
             
             input=GetLines();
-            AddOperation(&operaciones_vect);
+            if(operaciones_vect.oper_size!=0)AddOperation(&operaciones_vect);
 
             statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
-            if (statusLine!=_EOF) {
-                status_cargado=cargarStructNumeros(operaciones_vect.operaciones,
-                                                   &(operaciones_vect.oper_size),
-                                                   &(operaciones_vect.oper_size),
-                                                   num1,
-                                                   num2,
-                                                   &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op),
-                                                   precision
-                                                   );
-            }
-            else status_cargado=ERROR;
+            
+            status_cargado=cargarStructNumeros(operaciones_vect.operaciones,
+                                                &(operaciones_vect.oper_size),
+                                                &(operaciones_vect.oper_size),
+                                                num1,
+                                                num2,
+                                                &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op),
+                                                precision,
+                                                statusLine
+                                                );
+            
             
             /*
             printf("DEBUG numero1:");
@@ -113,7 +113,7 @@ int main(int argc,char *argv[])
                 }
                 printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
                 
-                operaciones_vect.oper_size++;
+                
                 
                 free(input);
                 free(num1);
@@ -126,13 +126,42 @@ int main(int argc,char *argv[])
             {
                 printf("Inf\n");
             }
-        
+            else
+            {
+                // si llegamos aca es que obtuvimos un #calculate
+                if (!(operaciones_vect.operaciones[operaciones_vect.oper_size-1]->rst = (ushort*)malloc(sizeof(ushort) )))
+                {
+                    fprintf(stderr, "Error, could not find memory to allocate a result\n");
+                }
+            }
+            operaciones_vect.oper_size++;
         }
         
+        /* liberamos memoria */
+        //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         free(input);
         input=NULL;
-        /* liberamos memoria */
-        free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
+        for (i=0; i<operaciones_vect.oper_size; i++)
+        {
+            free( operaciones_vect.operaciones[i]->op1->digits);
+            operaciones_vect.operaciones[i]->op1->digits=NULL;
+            free( operaciones_vect.operaciones[i]->op2->digits);
+            operaciones_vect.operaciones[i]->op2->digits=NULL;
+            free( operaciones_vect.operaciones[i]->op1);
+            operaciones_vect.operaciones[i]->op1=NULL;
+            free( operaciones_vect.operaciones[i]->op2);
+            operaciones_vect.operaciones[i]->op2=NULL;
+            free( operaciones_vect.operaciones[i]->rst);
+            operaciones_vect.operaciones[i]->rst=NULL;
+            
+        }
+        
+        
+        for (i=0; i<operaciones_vect.oper_size; i++) {
+            free(operaciones_vect.operaciones[i]);
+            operaciones_vect.operaciones[i]=NULL;
+        }
+
         free(operaciones_vect.operaciones);
 
         
@@ -167,11 +196,12 @@ void test(operation_vector_t * oper_vect)
     char num1[]="+0123456789";
     char num2[]="+0123456789";
     opt_t operation=MULT;
+    operation_status_t status=OK;
     
     	
     inicializarStructOperation(oper_vect);
     AddOperation(oper_vect);
-    cargarStructNumeros(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision);
+    cargarStructNumeros(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
     
     
     /*probamos las funciones una por una */
@@ -579,6 +609,11 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
     }
     else
     {
+        
+        *line1=(char *)calloc( 2,sizeof(char) );
+        *line2=(char *)calloc( 2,sizeof(char) );
+        *line1="+0";
+        *line2="+0";
         *operation=NOOPERATION;
         return _EOF;
     }
@@ -599,7 +634,7 @@ char * searchEnter(char *str ){
 
 char * prependChar(const char * str, char c)
 {
-    char * string = (char *)malloc( strlen(str)+2 ); /* añadimos 2 posiciones una para el caracter y otra para el \0 */
+    char * string = (char *)calloc( strlen(str)+2,sizeof(char) ); /* añadimos 2 posiciones una para el caracter y otra para el \0 */
     if(c!='#')
     {
         string[0] = c;
