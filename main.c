@@ -129,9 +129,18 @@ int main(int argc,char *argv[])
             else
             {
                 // si llegamos aca es que obtuvimos un #calculate
-                if (!(operaciones_vect.operaciones[operaciones_vect.oper_size-1]->rst = (ushort*)malloc(sizeof(ushort) )))
+                if(operaciones_vect.oper_size==0){
+                    if (!(operaciones_vect.operaciones[0]->rst = (ushort*)malloc(sizeof(ushort) )))
+                    {
+                        fprintf(stderr, "Error, could not find memory to allocate a result\n");
+                    }
+                }
+                else
                 {
-                    fprintf(stderr, "Error, could not find memory to allocate a result\n");
+                    if (!(operaciones_vect.operaciones[operaciones_vect.oper_size-1]->rst = (ushort*)malloc(sizeof(ushort) )))
+                    {
+                        fprintf(stderr, "Error, could not find memory to allocate a result\n");
+                    }
                 }
             }
             operaciones_vect.oper_size++;
@@ -614,11 +623,8 @@ operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_
     }
     else
     {
-        
-        *line1=(char *)calloc( 2,sizeof(char) );
-        *line2=(char *)calloc( 2,sizeof(char) );
-        *line1="+0";
-        *line2="+0";
+        *line1=prependChar("00",'+');
+        *line2=prependChar("00",'+');
         *operation=NOOPERATION;
         return _EOF;
     }
