@@ -65,13 +65,14 @@ int main(int argc,char *argv[])
     if ( calcmode==SUPERCALC )
     {
         /*test(&operaciones_vect);*/
+        
         inicializarStructOperation(&operaciones_vect);
         
         while (statusLine!=_EOF)
         {
             
             input=GetLines();
-            if(operaciones_vect.oper_size!=0)AddOperation(&operaciones_vect);
+            if(operaciones_vect.oper_size!=0) AddOperation(&operaciones_vect);
 
             statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
             
@@ -85,16 +86,7 @@ int main(int argc,char *argv[])
                                                 statusLine
                                                 );
             
-            
-            /*
-            printf("DEBUG numero1:");
-            printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op1->q_digits,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
-            printf("\nDEBUG numero2:");
-            printArrayShort( (short*)operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->digits, operaciones_vect.operaciones[operaciones_vect.oper_size]->op2->q_digits,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
-            printf("\n");
-            */
-            
-            if (status_cargado==OK)
+            if ( status_cargado == OK )
             {
                 switch (operaciones_vect.operaciones[operaciones_vect.oper_size]->op)
                 {
@@ -112,8 +104,6 @@ int main(int argc,char *argv[])
                         break;
                 }
                 printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
-                
-                
                 
                 free(input);
                 free(num1);
@@ -155,6 +145,7 @@ int main(int argc,char *argv[])
         num1=NULL;
         num2=NULL;
         input=NULL;
+        
         for (i=0; i<operaciones_vect.oper_size; i++)
         {
             free( operaciones_vect.operaciones[i]->op1->digits);
@@ -167,15 +158,13 @@ int main(int argc,char *argv[])
             operaciones_vect.operaciones[i]->op2=NULL;
             free( operaciones_vect.operaciones[i]->rst);
             operaciones_vect.operaciones[i]->rst=NULL;
-            
         }
         
-        
-        for (i=0; i<operaciones_vect.oper_size; i++) {
+        for (i=0; i<operaciones_vect.oper_size; i++)
+        {
             free(operaciones_vect.operaciones[i]);
             operaciones_vect.operaciones[i]=NULL;
         }
-
         free(operaciones_vect.operaciones);
 
         
