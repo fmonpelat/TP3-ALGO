@@ -64,8 +64,8 @@ int main(int argc,char *argv[])
     
     if ( calcmode==SUPERCALC )
     {
-        /*test(&operaciones_vect);*/
-        
+        test(&operaciones_vect);
+        /*
         inicializarStructOperation(&operaciones_vect);
         
         while (statusLine!=_EOF)
@@ -136,7 +136,7 @@ int main(int argc,char *argv[])
             operaciones_vect.oper_size++;
         }
         
-        /* liberamos memoria */
+        /* liberamos memoria
         //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         free(input);
         free(num1);
@@ -144,7 +144,6 @@ int main(int argc,char *argv[])
         input=NULL;
         num1=NULL;
         num2=NULL;
-        input=NULL;
         
         for (i=0; i<operaciones_vect.oper_size; i++)
         {
@@ -166,7 +165,8 @@ int main(int argc,char *argv[])
             operaciones_vect.operaciones[i]=NULL;
         }
         free(operaciones_vect.operaciones);
-
+        operaciones_vect.operaciones=NULL;
+    */
         
     }
     else if( calcmode==SIMPLECALC)
@@ -179,6 +179,7 @@ int main(int argc,char *argv[])
         return 0;
 
     }
+    
     
     return 0;
 }
@@ -194,11 +195,11 @@ int main(int argc,char *argv[])
 void test(operation_vector_t * oper_vect)
 {
     size_t precision=DEFAULT_PRECISION;
-    
+    size_t i=0;
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+0123456789";
-    char num2[]="+0123456789";
-    opt_t operation=MULT;
+    char num1[]="+20";
+    char num2[]="+10";
+    opt_t operation=RESTA;
     operation_status_t status=OK;
     
     	
@@ -213,17 +214,41 @@ void test(operation_vector_t * oper_vect)
        char num1[]="+40";
        char num2[]="+2";
     
-    opt_t operation=RESTA;
+    opt_t operation=RESTA;*/
     
-    oper_vect->operaciones[oper_vect->oper_size]->rst = resta_digito_a_digito(oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
-                                         oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
-                                         oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
-                                         oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                         &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
+    oper_vect->operaciones[oper_vect->oper_size]->rst = resta_digito_a_digito(
+                                                                              oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
+                                                                              oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
+                                                                              oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
+                                                                              oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
+                                                                              &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
     
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst);
-    printf("\n");
-    */
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
+                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
+                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
+                    precision);
+    
+    for (i=0; i<oper_vect->oper_size; i++)
+    {
+        free( oper_vect->operaciones[i]->op1->digits);
+        oper_vect->operaciones[i]->op1->digits=NULL;
+        free( oper_vect->operaciones[i]->op2->digits);
+        oper_vect->operaciones[i]->op2->digits=NULL;
+        free( oper_vect->operaciones[i]->op1);
+        oper_vect->operaciones[i]->op1=NULL;
+        free( oper_vect->operaciones[i]->op2);
+        oper_vect->operaciones[i]->op2=NULL;
+        free( oper_vect->operaciones[i]->rst);
+        oper_vect->operaciones[i]->rst=NULL;
+    }
+    
+    for (i=0; i<oper_vect->oper_size; i++)
+    {
+        free(oper_vect->operaciones[i]);
+        oper_vect->operaciones[i]=NULL;
+    }
+    free(oper_vect->operaciones);
+    oper_vect->operaciones=NULL;
     
     
     /* Prueba de resta()

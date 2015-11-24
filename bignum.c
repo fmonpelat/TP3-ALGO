@@ -560,12 +560,14 @@ ushort * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_
         res=suma_digito_a_digito(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
 	
         ++cont;
+        
         for(i=0;i<cant1+cant2+cont;i++)
         {
             resAux[i]=res[i];
         }
         free(res);
         res=NULL;
+         
     }
     *q_resultado=cant1+cant2+cont;
     
