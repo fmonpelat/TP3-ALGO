@@ -110,7 +110,7 @@ int main(int argc,char *argv[])
                         break;
                 }
                 printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
-                operaciones_vect.oper_size++;
+                
             
                 free(input);
                 free(num1);
@@ -123,11 +123,11 @@ int main(int argc,char *argv[])
             {
                 printf("Inf\n");
             }
-        
+        operaciones_vect.oper_size++;
         }
         free(input);
         input=NULL;
-        operaciones_vect.oper_size++;
+
         /* liberamos memoria */
         free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         
