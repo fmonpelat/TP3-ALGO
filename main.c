@@ -125,7 +125,9 @@ int main(int argc,char *argv[])
             }
         
         }
-        
+        free(input);
+        input=NULL;
+        operaciones_vect.oper_size++;
         /* liberamos memoria */
         free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
 
