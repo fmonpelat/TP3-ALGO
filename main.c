@@ -140,6 +140,11 @@ int main(int argc,char *argv[])
         /* liberamos memoria */
         //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         free(input);
+        free(num1);
+        free(num2);
+        input=NULL;
+        num1=NULL;
+        num2=NULL;
         input=NULL;
         for (i=0; i<operaciones_vect.oper_size; i++)
         {
