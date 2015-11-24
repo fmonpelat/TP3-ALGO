@@ -37,9 +37,10 @@ operation_status_t inicializarStructOperation(operation_vector_t * oper ){
 
 operation_status_t AddOperation(operation_vector_t *oper){
     
-    operation_t **ppAux=NULL;
+    /*operation_t **ppAux=NULL;*/
     operation_t *pAux;
 
+    /* esto quedo viejo ya que se declara estaticamente el vector en el main
     if ( !(ppAux=(operation_t **)realloc(oper->operaciones,( sizeof(operation_t*) * (oper->oper_size+1)) ) )  )
     {
         fprintf(stderr, "no memory \n");
@@ -47,7 +48,7 @@ operation_status_t AddOperation(operation_vector_t *oper){
     }
     
     (oper->operaciones)=ppAux;
-    
+    */
     if (!(pAux=(operation_t *)malloc(sizeof(operation_t) )) ) {
         fprintf(stderr, "no memory \n");
         return NOMEM;
