@@ -539,8 +539,12 @@ ushort * multiplico (ushort *dig1,ushort *dig2, size_t cant1, size_t cant2,size_
     }
     *q_resultado=cant1+cant2+cont;
     
-
-
+    for(k=0;k<cant2;k++)
+    {
+        free(res_matriz[k]);
+    }
+    free(res_matriz);
+    
     return resAux;
 }
 
