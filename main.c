@@ -64,15 +64,17 @@ int main(int argc,char *argv[])
     
     if ( calcmode==SUPERCALC )
     {
-        test(&operaciones_vect);
-        /*
+        /*test(&operaciones_vect);*/
+        
         inicializarStructOperation(&operaciones_vect);
         
         while (statusLine!=_EOF)
         {
             
             input=GetLines();
+            operaciones_vect.oper_size++;
             if(operaciones_vect.oper_size!=0) AddOperation(&operaciones_vect);
+            
 
             statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
             
@@ -86,24 +88,29 @@ int main(int argc,char *argv[])
                                                 statusLine
                                                 );
             
-            if ( status_cargado == OK )
-            {
+        
                 switch (operaciones_vect.operaciones[operaciones_vect.oper_size]->op)
                 {
                     case SUMA:
                                 suma(&operaciones_vect, &(operaciones_vect.oper_size) );
+                                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
                                 break;
                     case RESTA:
                                 resta(&operaciones_vect, &(operaciones_vect.oper_size) );
+                                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
                                 break;
                     case MULT:
                                 multiplicar(&operaciones_vect, &(operaciones_vect.oper_size));
+                                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
+                                break;
+                    case NOOPERATION:
+                                suma(&operaciones_vect, &(operaciones_vect.oper_size) );
                                 break;
                     default:
                         fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
                         break;
                 }
-                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
+            
                 
                 free(input);
                 free(num1);
@@ -112,31 +119,14 @@ int main(int argc,char *argv[])
                 num1=NULL;
                 num2=NULL;
             }
-            else if(status_cargado==INF)
+            if(status_cargado==INF)
             {
                 printf("Inf\n");
             }
-            else
-            {
-                // si llegamos aca es que obtuvimos un #calculate
-                if(operaciones_vect.oper_size==0){
-                    if (!(operaciones_vect.operaciones[0]->rst = (ushort*)malloc(sizeof(ushort) )))
-                    {
-                        fprintf(stderr, "Error, could not find memory to allocate a result\n");
-                    }
-                }
-                else
-                {
-                    if (!(operaciones_vect.operaciones[operaciones_vect.oper_size-1]->rst = (ushort*)malloc(sizeof(ushort) )))
-                    {
-                        fprintf(stderr, "Error, could not find memory to allocate a result\n");
-                    }
-                }
-            }
-            operaciones_vect.oper_size++;
-        }
         
-        /* liberamos memoria
+        
+        
+        /* liberamos memoria */
         //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         free(input);
         free(num1);
@@ -144,7 +134,7 @@ int main(int argc,char *argv[])
         input=NULL;
         num1=NULL;
         num2=NULL;
-        */
+        
         operaciones_vect.oper_size++;
         for (i=0; i<operaciones_vect.oper_size; i++)
         {
@@ -156,8 +146,8 @@ int main(int argc,char *argv[])
             operaciones_vect.operaciones[i]->op1=NULL;
             free( operaciones_vect.operaciones[i]->op2);
             operaciones_vect.operaciones[i]->op2=NULL;
-            free( operaciones_vect.operaciones[i]->rst);
-            operaciones_vect.operaciones[i]->rst=NULL;
+            //free( operaciones_vect.operaciones[i]->rst);
+            //operaciones_vect.operaciones[i]->rst=NULL;
         }
         
         for (i=0; i<operaciones_vect.oper_size; i++)
@@ -170,7 +160,7 @@ int main(int argc,char *argv[])
 
         
     }
-    else if( calcmode==SIMPLECALC)
+    else if( calcmode==SIMPLECALC )
     {
         
         /* modo calculadora simple */
