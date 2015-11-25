@@ -144,7 +144,7 @@ int main(int argc,char *argv[])
         input=NULL;
         num1=NULL;
         num2=NULL;
-        
+        */
         for (i=0; i<operaciones_vect.oper_size; i++)
         {
             free( operaciones_vect.operaciones[i]->op1->digits);
@@ -166,7 +166,7 @@ int main(int argc,char *argv[])
         }
         free(operaciones_vect.operaciones);
         operaciones_vect.operaciones=NULL;
-    */
+
         
     }
     else if( calcmode==SIMPLECALC)
@@ -228,27 +228,6 @@ void test(operation_vector_t * oper_vect)
                     oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
                     precision);
     
-    for (i=0; i<oper_vect->oper_size; i++)
-    {
-        free( oper_vect->operaciones[i]->op1->digits);
-        oper_vect->operaciones[i]->op1->digits=NULL;
-        free( oper_vect->operaciones[i]->op2->digits);
-        oper_vect->operaciones[i]->op2->digits=NULL;
-        free( oper_vect->operaciones[i]->op1);
-        oper_vect->operaciones[i]->op1=NULL;
-        free( oper_vect->operaciones[i]->op2);
-        oper_vect->operaciones[i]->op2=NULL;
-        free( oper_vect->operaciones[i]->rst);
-        oper_vect->operaciones[i]->rst=NULL;
-    }
-    
-    for (i=0; i<oper_vect->oper_size; i++)
-    {
-        free(oper_vect->operaciones[i]);
-        oper_vect->operaciones[i]=NULL;
-    }
-    free(oper_vect->operaciones);
-    oper_vect->operaciones=NULL;
     
     
     /* Prueba de resta()
