@@ -204,7 +204,7 @@ void test(operation_vector_t * oper_vect)
     
     	
     inicializarStructOperation(oper_vect);
-    AddOperation(oper_vect);
+    //AddOperation(oper_vect);
     cargarStructNumeros(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
     
     
