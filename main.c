@@ -145,6 +145,7 @@ int main(int argc,char *argv[])
         num1=NULL;
         num2=NULL;
         */
+        operaciones_vect.oper_size++;
         for (i=0; i<operaciones_vect.oper_size; i++)
         {
             free( operaciones_vect.operaciones[i]->op1->digits);
