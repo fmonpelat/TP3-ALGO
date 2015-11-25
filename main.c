@@ -64,7 +64,9 @@ int main(int argc,char *argv[])
     
     if ( calcmode==SUPERCALC )
     {
-        /*test(&operaciones_vect);*/
+        
+        /* Funcion de Prubas comentar todo abajo de esto salvo los frees
+         test(&operaciones_vect);*/
         
         inicializarStructOperation(&operaciones_vect);
         
@@ -75,7 +77,6 @@ int main(int argc,char *argv[])
             operaciones_vect.oper_size++;
             if(operaciones_vect.oper_size!=0) AddOperation(&operaciones_vect);
             
-
             statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
             
             status_cargado=cargarStructNumeros(operaciones_vect.operaciones,
@@ -110,8 +111,6 @@ int main(int argc,char *argv[])
                         fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
                         break;
                 }
-            
-                
                 free(input);
                 free(num1);
                 free(num2);
@@ -135,8 +134,8 @@ int main(int argc,char *argv[])
         num1=NULL;
         num2=NULL;
         
-        operaciones_vect.oper_size++;
-        for (i=0; i<operaciones_vect.oper_size; i++)
+        
+        for (i=0; i<operaciones_vect.oper_size+1; i++)
         {
             free( operaciones_vect.operaciones[i]->op1->digits);
             operaciones_vect.operaciones[i]->op1->digits=NULL;
@@ -150,7 +149,7 @@ int main(int argc,char *argv[])
             operaciones_vect.operaciones[i]->rst=NULL;
         }
         
-        for (i=0; i<operaciones_vect.oper_size; i++)
+        for (i=0; i<operaciones_vect.oper_size+1; i++)
         {
             free(operaciones_vect.operaciones[i]);
             operaciones_vect.operaciones[i]=NULL;
@@ -180,11 +179,13 @@ int main(int argc,char *argv[])
 
 
 
+
 /*###############################*/
 /*####### funciones #############*/
 
 void test(operation_vector_t * oper_vect)
 {
+    
     size_t precision=DEFAULT_PRECISION;
     size_t i=0;
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
@@ -193,11 +194,10 @@ void test(operation_vector_t * oper_vect)
     opt_t operation=MULT;
     operation_status_t status=OK;
     
-    	
+    /*
     inicializarStructOperation(oper_vect);
-    //AddOperation(oper_vect);
     cargarStructNumeros(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
-    
+    */
     
     /*probamos las funciones una por una */
     
@@ -241,14 +241,15 @@ void test(operation_vector_t * oper_vect)
      */
     
     /* Prueba de suma_digito_a_digito() (no funciona si el primer op1 tiene mas caracteres que el op2 se llama a suma para contrarestar este problema.)
-    oper_vect->operaciones[oper_vect->oper_size]->rst = suma_digito_a_digito(oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
+     oper_vect->operaciones[oper_vect->oper_size]->rst = suma_digito_a_digito(
+                                                                             oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
                                                                              oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
                                                                              oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
                                                                              oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
                                                                              &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,oper_vect->operaciones[oper_vect->oper_size]->q_rst);
-    printf("\n");
+     printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
+     oper_vect->operaciones[oper_vect->oper_size]->q_rst,
+     oper_vect->op
     */
     
     /* Prueba de suma()
@@ -272,7 +273,7 @@ void test(operation_vector_t * oper_vect)
                     precision);
      */
     
-    /* Prueba de Multiplicacion */
+    /* Prueba de Multiplicacion
     oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
@@ -299,7 +300,7 @@ void test(operation_vector_t * oper_vect)
                     oper_vect->operaciones[oper_vect->oper_size]->q_rst,
                     oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
                     precision);
-
+     */
     
 }
 
@@ -686,7 +687,8 @@ void printArrayShort(ushort *str,size_t size,sign_t sign,size_t precision){
     
     if (sign==NEGATIVE) printf("-");
     
-    for (i=0; i<size ; i++) {
+    for (i=0; i<size ; i++)
+    {
         if( (str[i]!=0) || (flag_print) )
         {
             if(i!=precision)
@@ -702,7 +704,8 @@ void printArrayShort(ushort *str,size_t size,sign_t sign,size_t precision){
             fflush(stdout);
         }
     }
-    if (!flag_print) {
+    if (!flag_print)
+    {
         printf("0");
     }
     printf("\n");

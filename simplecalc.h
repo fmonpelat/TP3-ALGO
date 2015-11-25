@@ -64,6 +64,7 @@ void imprimo_matriz(int matriz[][RESOLUCION]);
 void make_pbm_file(FILE **);
 void write_pbm_file(FILE **,int matriz[RESOLUCION][RESOLUCION],int,int);
 void close_pbm_file(FILE **);
-void limpiarbuffer();
+void limpiarbuffer(void);
+
 
 #endif /* defined(__Tp3__simplecalc__) */

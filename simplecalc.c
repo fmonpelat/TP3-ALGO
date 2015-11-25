@@ -64,7 +64,7 @@ float ingreso_val1(void)
 float ingreso_val2(void)
 {
     float aux2;
-    printf("Ingrese el segundo número \n");
+    printf("Ingresevoidvoid el segundo número \n");
     scanf("%f",&aux2);
     return aux2;
 }
@@ -259,7 +259,7 @@ void menu_graf(void)
 {
     FILE * pbm;
     int flag_opt=0; /* flag_opt = 0 si no entro a ninguna funcion a graficar */
-    typedef enum {SEN=1,COS,POL0,POL1,POL2,POL3,LN,EXP,DEFAULT} opt_graf_t;
+    typedef enum {SEN=1,COS,POL0,POL1,POL2,POL3,LN,EXP,DEFAULT,ERROR=255} opt_graf_t;
     opt_graf_t optgraf;
     char option[MAX_CHAR];
     int matriz[RESOLUCION][RESOLUCION];
@@ -755,7 +755,7 @@ void imprimo_matriz(int matriz[][RESOLUCION])
     }
 }
 
-void limpiarbuffer()
+void limpiarbuffer(void)
 {
     int ch;
     while( (ch = fgetc(stdin)) != EOF && ch != '\n' ){}
