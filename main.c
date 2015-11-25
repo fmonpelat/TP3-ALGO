@@ -200,7 +200,7 @@ void test(operation_vector_t * oper_vect)
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
     char num1[]="+20";
     char num2[]="+10";
-    opt_t operation=RESTA;
+    opt_t operation=MULT;
     operation_status_t status=OK;
     
     	
@@ -261,7 +261,7 @@ void test(operation_vector_t * oper_vect)
     printf("\n");
     */
     
-    /* Prueba de suma()*/
+    /* Prueba de suma()
 
     suma( oper_vect, &(oper_vect->oper_size) );
     printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
@@ -280,26 +280,35 @@ void test(operation_vector_t * oper_vect)
                     oper_vect->operaciones[oper_vect->oper_size]->q_rst,
                     oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
                     precision);
-
+     */
     
     /* Prueba de Multiplicacion */
-    /*oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
+    oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
                                                                    oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
                                                                    &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
+                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
+                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
+                    precision);
+    
+    oper_vect->oper_size++;
+    AddOperation(oper_vect);
+    
+    cargarStructNumeros(oper_vect->operaciones, &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
     
     oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
                                                                 oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
                                                                 oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
                                                                 oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
                                                                 oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                                                 &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst, oper_vect->operaciones[oper_vect->oper_size]->q_rst,oper_vect->operaciones[oper_vect->oper_size]->sign_rst,precision);
-    printf("\n");
-    */
+                                                                &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
+                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
+                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
+                    precision);
 
     
 }
