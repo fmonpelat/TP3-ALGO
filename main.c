@@ -238,6 +238,16 @@ void test(operation_vector_t * oper_vect)
                     oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
                     precision);
     
+    oper_vect->oper_size++;
+    AddOperation(oper_vect);
+    
+    cargarStructNumeros(oper_vect->operaciones, &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
+    
+    resta(oper_vect, &(oper_vect->oper_size));
+    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
+                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
+                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
+                    precision);
     /* Prueba de suma_digito_a_digito() (no funciona si el primer op1 tiene mas caracteres que el op2 se llama a suma para contrarestar este problema.)
     oper_vect->operaciones[oper_vect->oper_size]->rst = suma_digito_a_digito(oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
                                                                              oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
