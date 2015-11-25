@@ -146,8 +146,8 @@ int main(int argc,char *argv[])
             operaciones_vect.operaciones[i]->op1=NULL;
             free( operaciones_vect.operaciones[i]->op2);
             operaciones_vect.operaciones[i]->op2=NULL;
-            //free( operaciones_vect.operaciones[i]->rst);
-            //operaciones_vect.operaciones[i]->rst=NULL;
+            free( operaciones_vect.operaciones[i]->rst);
+            operaciones_vect.operaciones[i]->rst=NULL;
         }
         
         for (i=0; i<operaciones_vect.oper_size; i++)
