@@ -310,7 +310,7 @@ void suma( operation_vector_t *oper, size_t *size)
                     oper->operaciones[*size]->sign_rst=POSITIVE;
                     return;
                 }
-                if ( oper->operaciones[*size]->op1->digits[i]>=oper->operaciones[*size]->op2->digits[i] )
+                if ( oper->operaciones[*size]->op1->digits[i]>oper->operaciones[*size]->op2->digits[i] )
                 {
                     oper->operaciones[*size]->rst=resta_digito_a_digito(oper->operaciones[*size]->op1->digits,
                                                                         oper->operaciones[*size]->op2->digits,
